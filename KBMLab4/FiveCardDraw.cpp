@@ -288,23 +288,25 @@ int FiveCardDraw::before_round() {
 
 int FiveCardDraw::betting_zero() {
 
-	cout << "Pot: " << pot << endl;
+	//cout << "Pot: " << pot << endl;
 	for (int i = 0; i < players.size(); i++) {
-		cout << players[i]->playerName << " ante'd up 1 chip." << endl;
-		cout << "Chips before: " << players[i]->player_chips << endl;
+		//cout << players[i]->playerName << " ante'd up 1 chip." << endl;
+		//cout << "Chips before: " << players[i]->player_chips << endl;
 		players[i]->player_chips--;
-		cout << "Chips after: " << players[i]->player_chips << endl;
+		//cout << "Chips after: " << players[i]->player_chips << endl;
 		if (players[i]->player_chips == 0) {
-			cout << players[i]->playerName << " is all in!" << endl;
+			cout << players[i]->playerName << " ante'd up and is all in!" << endl;
 		}
 	}
-	cout << "Pot before: " << pot << endl;
+	//cout << "Pot before: " << pot << endl;
 	pot += players.size();
-	cout << "Pot after: " << pot << endl;
+	//cout << "Pot after: " << pot << endl;
 	
 	return Success;
 }
 
+//Old Garbo
+/*
 int FiveCardDraw::betting_one() {
 
 	bool isBet = false;
@@ -626,72 +628,329 @@ int FiveCardDraw::betting_one() {
 	}
 	return Success;
 }
+*/
 
-////john's
-//int FiveCardDraw::betting_one() {
-//	enum BetterTypes {
-//		Raise2,
-//		Raise1,
-//		Call,
-//		AllIn,
-//		Place2,
-//		Place1
-//	};
-//
-//	set<int> betterIndices;
-//	for (int i = 0; i < players.size(); i++) {
-//		betterIndices.insert(i);
-//	}
-//	int callers = 0;
-//	int maxBet = 0;
-//	bool isBet = false;
-//	
-//	BetterTypes playerType;
-//	int i = 0;
-//
-//	while (callers < betterIndices.size()) {
-//		if (betterIndices.count(i) != 0) {
-//			int betDiff = (maxBet - players[i]->current_bet);
-//			int playerChips = (players[i]->player_chips);
-//
-//			if (isBet) {
-//				if ((betDiff + 2) <= playerChips) {
-//					playerType = Raise2;
-//				}
-//				else if ((betDiff + 1) <= playerChips) {
-//					playerType = Raise1;
-//				}
-//				else if (betDiff <= playerChips) {
-//					playerType = Call;
-//				}
-//				else if (betDiff > playerChips) {
-//					playerType = AllIn;
-//				}
-//			}
-//			else {
-//				if (playerChips >= 2) {
-//					playerType = Place2;
-//				}
-//				else if (playerChips >= 1) {
-//					playerType = Place1;
-//				}
-//				else if (playerChips == 0) {
-//					playerType = AllIn;
-//				}
-//			}
-//
-//			if (isBet) {
-//				cout << "The current bet is " << maxBet << endl;
-//			}
-//			else {
-//				cout << "No bet has been made" << endl;
-//			}
-//		}
-//
-//	i = (i + 1) % (players.size());
-//	}
-//}
+//John's updaterooney --------------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+/*
+BetterTypes better_type(shared_ptr<Player> player, int maxBet, bool isBet) {
+int betDiff = (maxBet - player->current_bet);
+int playerChips = (player->player_chips);
+BetterTypes playerType;
+
+if (isBet) {
+if ((betDiff + 2) <= playerChips) {
+playerType = Raise2;
+}
+else if ((betDiff + 1) <= playerChips) {
+playerType = Raise1;
+}
+else if (betDiff <= playerChips) {
+playerType = Call;
+}
+else if (betDiff > playerChips) {
+playerType = AllIn;
+}
+}
+else {
+if (playerChips >= 2) {
+playerType = Place2;
+}
+else if (playerChips >= 1) {
+playerType = Place1;
+}
+else if (playerChips == 0) {
+playerType = AllIn;
+}
+}
+return playerType;
+}
+*/
+
+enum BetterTypes {
+	Raise2,
+	Raise1,
+	Call,
+	Check,
+	AllIn,
+	Place2,
+	Place1,
+	Fold
+};
+
+bool get_response() {
+	bool validResponse = false;
+	string ans;
+	bool resp;
+	while (!validResponse) {
+		getline(cin, ans);
+		if (ans == "yes") {
+			validResponse = true;
+			resp = true;
+		}else if (ans == "no") {
+			validResponse = true;
+			resp = false;
+		}else {
+			cout << "Please answer 'yes' or 'no'!" << endl;
+		}
+	}
+	return resp;
+}
+
+int get_one_two() {
+	bool validResponse = false;
+	string ans;
+	int resp;
+	while (!validResponse) {
+		getline(cin, ans);
+		if (ans == "one") {
+			validResponse = true;
+			resp = 1;
+		}
+		else if (ans == "two") {
+			validResponse = true;
+			resp = 2;
+		}
+		else if (ans == "no") {
+			validResponse = true;
+			resp = 0;
+		}
+		else {
+			cout << "Please answer 'one' , 'two' , or 'no'!" << endl;
+		}
+	}
+	return resp;
+}
+
+int FiveCardDraw::betting_one() {
+
+	set<int> betterIndices;
+	int callers = 0;
+	for (int i = 0; i < players.size(); i++) {
+		betterIndices.insert(i);
+	}
+	
+	int maxBet = 0;
+	bool isBet = false;
+	
+	BetterTypes playerType;
+	shared_ptr<Player> currPlayer;
+	int i = 0;
+	
+	while (callers < betterIndices.size()) {
+
+		cout << endl << " ================================================================ " << endl << endl;
+
+		cout << "Betters remaining: ";
+		for (auto it = betterIndices.begin(); it != betterIndices.end(); it++) {
+			cout << players[*it]->playerName << "(" << players[*it]->player_chips <<") ";
+		}
+		cout << endl;
+
+		if (betterIndices.find(i) != betterIndices.end()) {
+
+			currPlayer = players[i];
+
+			int betDiff = (maxBet - currPlayer->current_bet);
+			int playerChips = (currPlayer->player_chips);
+
+			if (isBet) {
+				cout << "The current bet is " << maxBet << "." << endl;
+				(playerChips >= betDiff ? playerType = Call : playerType = AllIn);
+			}
+			else {
+				cout << "No bet has been made." << endl;
+				(playerChips > 0 ? playerType = Check : playerType = AllIn);
+			}
+
+			cout << currPlayer->playerName << " has " << currPlayer->player_chips << " chips." << endl;
+			cout << players[i]->playerName << "'s hand: " << players[i]->player_cards << endl;
+
+			if (isBet) {
+				bool playerFinished = false;
+				while (!playerFinished) {
+					
+					switch (playerType) {
+					case Fold:
+						cout << currPlayer->playerName << " has folded for this round!" << endl;
+						betterIndices.erase(i);
+						currPlayer->still_betting = false;
+						playerFinished = true;
+						break;
+					case AllIn:
+						cout << currPlayer->playerName << " is All In for this round!" << endl;
+						betterIndices.erase(i);
+						currPlayer->player_chips = 0;
+						pot += currPlayer->player_chips;
+						currPlayer->all_in = true;
+						playerFinished = true;
+						break;
+					case Call:
+						cout << "It will cost " << currPlayer->playerName <<" "<<(maxBet - currPlayer->current_bet) << " chips to Call on the current bet." << endl;
+						cout << "Would " << currPlayer->playerName << " like to Call? (yes or no)" << endl;
+						if (get_response()) {
+							currPlayer->player_chips -= (maxBet - currPlayer->current_bet);
+							pot += (maxBet - currPlayer->current_bet);
+							currPlayer->current_bet = maxBet;
+							if (currPlayer->player_chips >= 2) { playerType = Raise2; }
+							else if (currPlayer->player_chips == 1) { playerType = Raise1; }
+							else { playerType = AllIn; }
+						}
+						else {
+							playerType = Fold;
+						}
+						break;
+					case Raise1:
+						cout << currPlayer->playerName << " has enough chips to raise the current bet by one chip." << endl;
+						cout << "Would " << currPlayer->playerName << " like to Raise the bet by one chip? (yes or no)" << endl;
+						if (get_response()) {
+							cout << "Bet raised by one chip!" << endl;
+							maxBet += 1;
+							currPlayer->player_chips -= (maxBet - currPlayer->current_bet);
+							pot += (maxBet - currPlayer->current_bet);
+							currPlayer->current_bet = maxBet;
+							callers = 0;
+							cout << "Callers reset to 0." << endl;
+							playerType = AllIn;
+						}
+						else {
+							playerFinished = true;
+						}
+						break;
+					case Raise2:
+						cout << currPlayer->playerName << " has enough chips to raise the current bet by one or two chips." << endl;
+						cout << "Would " << currPlayer->playerName << " like to Raise the bet by one or two chips? (one, two or no)" << endl;
+						int resp = get_one_two();
+						if (resp == 2) {
+							cout << "Bet raised by two chips!" << endl;
+							maxBet += 2;
+							currPlayer->player_chips -= (maxBet - currPlayer->current_bet);
+							pot += (maxBet - currPlayer->current_bet);
+							currPlayer->current_bet = maxBet;
+							callers = 0;
+							cout << "Callers reset to 0." << endl;
+							if (currPlayer->player_chips == 0) { playerType = AllIn; }
+							else { playerFinished = true; }
+						}
+						else if (resp == 1) {
+							cout << "Bet raised by one chip!" << endl;
+							maxBet += 1;
+							currPlayer->player_chips -= (maxBet - currPlayer->current_bet);
+							pot += (maxBet - currPlayer->current_bet);
+							currPlayer->current_bet = maxBet;
+							callers = 0;
+							cout << "Callers reset to 0." << endl;
+							if (currPlayer->player_chips == 0) { playerType = AllIn; }
+							else { playerFinished = true; }
+						}
+						else {
+							playerFinished = true;
+						}
+						break;
+					}
+				}
+			}
+
+			else {
+				bool playerFinished = false;
+				while (!playerFinished) {
+					
+					switch (playerType) {
+					case Fold:
+						cout << currPlayer->playerName << " has folded for this round!" << endl;
+						betterIndices.erase(i);
+						currPlayer->still_betting = false;
+						playerFinished = true;
+						break;
+					case AllIn:
+						cout << currPlayer->playerName << " is All In for this round!" << endl;
+						betterIndices.erase(i);
+						pot += currPlayer->player_chips;
+						currPlayer->player_chips = 0;
+						currPlayer->all_in = true;
+						playerFinished = true;
+						break;
+					case Check:
+						if (currPlayer->player_chips >= 1) {
+							cout << currPlayer->playerName << ", would you like to place the first Bet? (yes or no)" << endl;
+							if (get_response()) {
+								if (currPlayer->player_chips > 1) { playerType = Place2; }
+								else if (currPlayer->player_chips == 1) { playerType = Place1; }
+								break;
+							}
+						}
+						cout << currPlayer->playerName << ", would you like to Check?  (yes or no)" << endl;
+						if (get_response()) {
+							if (currPlayer->player_chips == 0) { playerType = AllIn; }
+							else{ playerFinished = true; }
+						}
+						else {
+							playerType = Fold;
+						}
+						break;
+					case Place1:
+						cout << "Would " << currPlayer->playerName << " like to place the initial bet at one chip? (yes or no)" << endl;
+						if (get_response()) {
+							cout << "Starting bet is one chip!" << endl;
+							maxBet += 1;
+							currPlayer->player_chips -= (maxBet - currPlayer->current_bet);
+							pot += (maxBet - currPlayer->current_bet);
+							currPlayer->current_bet = maxBet;
+							callers = 0;
+							cout << "Callers reset to 0." << endl;
+							isBet = true;
+							playerType = AllIn;
+						}
+						else {
+							playerType = Check;
+						}
+						break;
+					case Place2:
+						cout << "Would " << currPlayer->playerName << " like to place the initial bet of one or two chips? (one, two, or no)" << endl;
+						int resp = get_one_two();
+						if (resp == 2) {
+							cout << "Starting bet is two chips!" << endl;
+							maxBet += 2;
+							currPlayer->player_chips -= (maxBet - currPlayer->current_bet);
+							pot += (maxBet - currPlayer->current_bet);
+							currPlayer->current_bet = maxBet;
+							callers = 0;
+							cout << "Callers reset to 0." << endl;
+							isBet = true;
+							if (currPlayer->player_chips == 0) { playerType = AllIn; }
+							else { playerFinished = true; }
+						}
+						else if (resp == 1) {
+							cout << "Starting bet is one chip!" << endl;
+							maxBet += 1;
+							currPlayer->player_chips -= (maxBet - currPlayer->current_bet);
+							pot += (maxBet - currPlayer->current_bet);
+							currPlayer->current_bet = maxBet;
+							callers = 0;
+							cout << "Callers reset to 0." << endl;
+							isBet = true;
+							if (currPlayer->player_chips == 0) { playerType = AllIn; }
+							else { playerFinished = true; }
+						}
+						else {
+							playerType = Check;
+						}
+						break;
+					}
+				}
+			}
+			
+			if(betterIndices.find(i) != betterIndices.end()) {
+				callers++;
+			}
+		}
+
+	i = (i + 1) % (players.size());
+	}
+	
+	return Success;
+}
+//-------------------------------------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 /*Iterates through the players and at each player calling their turn method and then their after_turn method*/
 int FiveCardDraw::round() {
@@ -769,6 +1028,7 @@ int FiveCardDraw::after_round() {
 				std::cout << "Winner: " << copyOfPlayers[i]->playerName << endl;
 				copyOfPlayers[i]->hands_won++;
 				copyOfPlayers[i]->player_chips += pot;
+				cout << "BootyLoot: " << pot << endl;
 				pot = 0;
 			}
 			//10% probability of bot leaving if it won the hand
