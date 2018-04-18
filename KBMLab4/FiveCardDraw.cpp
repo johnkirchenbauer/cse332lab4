@@ -632,41 +632,6 @@ int FiveCardDraw::betting_one() {
 
 //John's updaterooney --------------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-/*
-BetterTypes better_type(shared_ptr<Player> player, int maxBet, bool isBet) {
-int betDiff = (maxBet - player->current_bet);
-int playerChips = (player->player_chips);
-BetterTypes playerType;
-
-if (isBet) {
-if ((betDiff + 2) <= playerChips) {
-playerType = Raise2;
-}
-else if ((betDiff + 1) <= playerChips) {
-playerType = Raise1;
-}
-else if (betDiff <= playerChips) {
-playerType = Call;
-}
-else if (betDiff > playerChips) {
-playerType = AllIn;
-}
-}
-else {
-if (playerChips >= 2) {
-playerType = Place2;
-}
-else if (playerChips >= 1) {
-playerType = Place1;
-}
-else if (playerChips == 0) {
-playerType = AllIn;
-}
-}
-return playerType;
-}
-*/
-
 enum BetterTypes {
 	Raise2,
 	Raise1,
@@ -810,7 +775,6 @@ int FiveCardDraw::betting_one() {
 							pot += (maxBet - currPlayer->current_bet);
 							currPlayer->current_bet = maxBet;
 							callers = 0;
-							cout << "Callers reset to 0." << endl;
 							playerType = AllIn;
 						}
 						else {
@@ -828,7 +792,6 @@ int FiveCardDraw::betting_one() {
 							pot += (maxBet - currPlayer->current_bet);
 							currPlayer->current_bet = maxBet;
 							callers = 0;
-							cout << "Callers reset to 0." << endl;
 							if (currPlayer->player_chips == 0) { playerType = AllIn; }
 							else { playerFinished = true; }
 						}
@@ -839,7 +802,6 @@ int FiveCardDraw::betting_one() {
 							pot += (maxBet - currPlayer->current_bet);
 							currPlayer->current_bet = maxBet;
 							callers = 0;
-							cout << "Callers reset to 0." << endl;
 							if (currPlayer->player_chips == 0) { playerType = AllIn; }
 							else { playerFinished = true; }
 						}
@@ -897,12 +859,11 @@ int FiveCardDraw::betting_one() {
 							pot += (maxBet - currPlayer->current_bet);
 							currPlayer->current_bet = maxBet;
 							callers = 0;
-							cout << "Callers reset to 0." << endl;
 							isBet = true;
 							playerType = AllIn;
 						}
 						else {
-							playerType = Check;
+							playerFinished = true;
 						}
 						break;
 					case Place2:
@@ -915,7 +876,6 @@ int FiveCardDraw::betting_one() {
 							pot += (maxBet - currPlayer->current_bet);
 							currPlayer->current_bet = maxBet;
 							callers = 0;
-							cout << "Callers reset to 0." << endl;
 							isBet = true;
 							if (currPlayer->player_chips == 0) { playerType = AllIn; }
 							else { playerFinished = true; }
@@ -927,13 +887,12 @@ int FiveCardDraw::betting_one() {
 							pot += (maxBet - currPlayer->current_bet);
 							currPlayer->current_bet = maxBet;
 							callers = 0;
-							cout << "Callers reset to 0." << endl;
 							isBet = true;
 							if (currPlayer->player_chips == 0) { playerType = AllIn; }
 							else { playerFinished = true; }
 						}
 						else {
-							playerType = Check;
+							playerFinished = true;
 						}
 						break;
 					}
