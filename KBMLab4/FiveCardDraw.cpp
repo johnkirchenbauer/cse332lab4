@@ -315,13 +315,21 @@ int FiveCardDraw::betting_one() {
 	int i = 0;
 	int j = 99999;
 	while(callers < numBetters) {
-		//cout << "callers before: " << callers << " betters before: " << numBetters << endl;
+
+
+		cout << "callers before: " << callers << " betters before: " << numBetters << endl;
 
 		cout << endl << "This player, " << players[i]->playerName << "'s chip count: " << players[i]->player_chips << endl;
 
 		bool validResponse = false;
 
 		if (players[i]->still_betting == true) {
+
+			cout << "Top i: " << i << " j: " << j << endl;
+			if (((i == j) && (players[j]->current_bet == maxBet)) || (j < 0)) {
+				numBetters--;
+				cout << "numBetters now: " << numBetters << endl;
+			}
 
 			cout << players[i]->playerName << "'s hand: " << players[i]->player_cards << endl; 
 
@@ -612,11 +620,8 @@ int FiveCardDraw::betting_one() {
 		//cout << "Next player: " << players[i]->playerName << endl;
 		cout << "callers after:" << callers << ", betters after:" << numBetters << endl;
 
-		//cout << "i: " << i << " j: " << j << endl;
-		if (i == j || j < 0) {
-			numBetters--;
-			cout << "numBetters now: " << numBetters<< endl;
-		}
+		cout << "Bottom i: " << i << " j: " << j << endl;
+	
 
 	}
 	return Success;

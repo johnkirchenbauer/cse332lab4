@@ -23,7 +23,7 @@ using namespace std;
 
 int main(int argc, char * argv[]) {
 
-
+	//hardcode for debugging
 	argc = 5;
 	argv[1] = "FiveCardDraw";
 	argv[2] = "alex";
