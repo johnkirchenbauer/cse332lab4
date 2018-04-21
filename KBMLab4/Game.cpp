@@ -11,6 +11,7 @@
 #include "Game.h"
 #include "kbmlab4.h"
 #include "FiveCardDraw.h"
+#include "SevenCardStud.h"
 #include <iostream>
 
 
@@ -46,13 +47,21 @@ void Game::start_game(const string & s) {
 	}
 
 	//search for "FiveCardDraw" in the string, and throw an exception if no match is found
-	if (s.find("FiveCardDraw") == string::npos) {
+	if ((s.find("FiveCardDraw") != string::npos)) {
+		//make new FiveCardDraw, and store its address into the static pointer member variable
+		shared_ptr<Game> fcd = make_shared<FiveCardDraw>();
+		p = fcd;
+	}
+	else if (s.find("SevenCardStud") != string::npos) {
+		//make new FiveCardDraw, and store its address into the static pointer member variable
+		shared_ptr<Game> fcd = make_shared<SevenCardStud>();
+		p = fcd;
+	}
+	else {
 		throw UnknownGame;
 	}
 
-	//make new FiveCardDraw, and store its address into the static pointer member variable
-	shared_ptr<Game> fcd = make_shared<FiveCardDraw>();
-	p = fcd;
+	
 	
 }
 

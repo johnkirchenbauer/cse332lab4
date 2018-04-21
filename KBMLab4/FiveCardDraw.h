@@ -16,7 +16,7 @@ protected:
 	size_t dealerPosition;   //keeps track of the dealer
 	Deck discardDeck;		 //the cards discarded by the players
 	int pot;
-public: 
+public:
 
 	FiveCardDraw();
 	
@@ -31,5 +31,8 @@ public:
 	virtual int after_round();
 };
 
+bool get_response();
+int get_one_two();
+bool comp(size_t i, size_t j);
 
 #endif

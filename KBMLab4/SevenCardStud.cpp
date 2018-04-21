@@ -1,14 +1,9 @@
-/*
-* Name: FiveCardDraw.cpp
-* Authors: Alex Bakus, John Kirchenbauer, Zach Miller
-* Description: This file contains the definitions for the FiveCardDraw class, which inherits from the abstract class Game, and is meant to
-* represent the five-card draw poker variant, where each player is dealt 5 cards and has the choice to discard their cards.
-*/
 
 #pragma once
 
 #include "stdafx.h"
 #include <stdio.h>
+#include "SevenCardStud.h"
 #include "FiveCardDraw.h"
 #include "kbmlab4.h"
 #include <iostream>
@@ -19,19 +14,17 @@
 #include "Game.h"
 #include <string>
 #include <set>
-
-
 using namespace std;
 
 //arrays used in the constructor to create a standard 52-card deck
-Card::Suit suitArr[four] = {
+Card::Suit suitArrSCS[four] = {
 	Card::clubs,
 	Card::diamonds,
 	Card::hearts,
 	Card::spades
 };
 
-Card::Rank rankArr[thirteen] = {
+Card::Rank rankArrSCS[thirteen] = {
 	Card::two ,
 	Card::three,
 	Card::four,
@@ -47,26 +40,21 @@ Card::Rank rankArr[thirteen] = {
 	Card::ace
 };
 
-/*Compares size_t objects*/
-bool comp(size_t i, size_t j) {
-	return i > j;
-}
-
-/*Constructor for FiveCardDraw that constructs a 52-card deck and initializes the dealer position to 0*/
-FiveCardDraw::FiveCardDraw() : dealerPosition(0),pot(0) {
+SevenCardStud::SevenCardStud() : dealerPosition(0), pot(0) {
 
 	//create the 52 cards and add them to the deck
 	for (int s = zero; s < four; s++) {
-		for (int r =zero; r < thirteen; r++) {
-			Card c = { suitArr[s],rankArr[r]};
+		for (int r = zero; r < thirteen; r++) {
+			Card c = { suitArrSCS[s],rankArrSCS[r] };
 			mainDeck.add_card(c);
 		}
 	}
 
+
 }
 
 /*This method receives input from the user telling it which card(s) to discard, and removes those cards from the player's hand*/
-int FiveCardDraw::before_turn(Player & player) {
+int SevenCardStud::before_turn(Player & player) {
 
 	if (player.playerName.back() != '*' && (player.still_betting || player.all_in)) {
 		std::cout << player.playerName << "'s hand: " << player.player_cards << endl;
@@ -74,7 +62,7 @@ int FiveCardDraw::before_turn(Player & player) {
 
 	bool botPlayer = false;  //true if the player is a bot
 
-	//check if the player is a bot
+							 //check if the player is a bot
 	if (player.playerName.back() == '*' && (player.still_betting || player.all_in)) {
 		botPlayer = true;
 		std::cout << player.playerName << " playing (BOT PLAYER)" << endl;
@@ -92,7 +80,7 @@ int FiveCardDraw::before_turn(Player & player) {
 
 	enum hand_ranks { no_hand, one_pair, two_pair, three_of_a_kind, straight, flush_hand, full_house, four_of_a_kind, straight_flush };
 	vector<Card> cards = player.player_cards.getCards();
-	
+
 	int bot_hand = getHandRank(cards);
 
 	if (botPlayer) {
@@ -134,18 +122,18 @@ int FiveCardDraw::before_turn(Player & player) {
 
 
 
-	
+
 
 	while ((player.still_betting || player.all_in) && !validInput && !botPlayer) {
 		std::cout << "Enter the indices of any cards you want to discard (1-5).  Press Enter to keep all cards." << endl;
 		getline(cin, input);
-	
-		istringstream inputStream(input);  
+
+		istringstream inputStream(input);
 
 		invalidString = false;
 
 		while (inputStream >> indexBuf) {
-			
+
 			invalidString = false;
 
 			//if the length of the word is one, add it to the charsReceived vector, otherwise set the invalidString boolean flag to true.
@@ -166,7 +154,7 @@ int FiveCardDraw::before_turn(Player & player) {
 
 				for (size_t i = zero; i < charsReceived.size(); i++) {
 					if ((charsReceived[i]) >= 0x31 && (charsReceived[i]) <= 0x35) {
-						validIndices.push_back((size_t)((charsReceived[i]-one) - '0'));
+						validIndices.push_back((size_t)((charsReceived[i] - one) - '0'));
 
 					}
 					else {
@@ -213,7 +201,7 @@ int FiveCardDraw::before_turn(Player & player) {
 }
 
 /*This method deals cards to players who have less than 5 cards.*/
-int FiveCardDraw::turn(Player & p) {
+int SevenCardStud::turn(Player & p) {
 
 	while (p.player_cards.size() < five) {
 
@@ -222,7 +210,7 @@ int FiveCardDraw::turn(Player & p) {
 
 			if (discardDeck.size() <= zero) {
 				throw TooFewCards;
-				
+
 			}
 			else {
 				discardDeck.shuffleDeck();
@@ -237,17 +225,17 @@ int FiveCardDraw::turn(Player & p) {
 }
 
 /*This method prints out each player's hand after the round*/
-int FiveCardDraw::after_turn(Player & p) {
+int SevenCardStud::after_turn(Player & p) {
 	std::cout << p.playerName << ": " << p.player_cards << endl;
-	return zero;	
+	return zero;
 }
 
-/*Calls the main deck member variable's shuffle method and then deals one card at a time from the main 
+/*Calls the main deck member variable's shuffle method and then deals one card at a time from the main
 **deck to each player, continuing to iterate through the players until each player has received five cards.
 **/
-int FiveCardDraw::before_round() {
+int SevenCardStud::before_round() {
 
-	std::cout << endl << "Round starting!" << endl;
+	std::cout << endl << "SCS Round starting!" << endl;
 
 	size_t numPlayers = players.size();
 
@@ -259,12 +247,12 @@ int FiveCardDraw::before_round() {
 		throw TooFewCards;
 	}
 
-	std::cout << players[dealerPosition]->playerName << " is dealing!"<< endl;
+	std::cout << players[dealerPosition]->playerName << " is dealing!" << endl;
 
 	mainDeck.shuffleDeck();
 
 	size_t dealIndex;
-	
+
 	//deal each player 5 cards each from the deck
 	for (size_t numCards = zero; numCards < five; numCards++) {
 		for (size_t i = one; i <= numPlayers; ++i) {
@@ -287,7 +275,7 @@ int FiveCardDraw::before_round() {
 	return Success;
 }
 
-int FiveCardDraw::betting_zero() {
+int SevenCardStud::betting_zero() {
 
 	//cout << "Pot: " << pot << endl;
 	for (int i = 0; i < players.size(); i++) {
@@ -302,7 +290,7 @@ int FiveCardDraw::betting_zero() {
 	//cout << "Pot before: " << pot << endl;
 	pot += players.size();
 	//cout << "Pot after: " << pot << endl;
-	
+
 	return Success;
 }
 
@@ -319,51 +307,7 @@ enum BetterTypes {
 	Fold
 };
 
-bool get_response() {
-	bool validResponse = false;
-	string ans;
-	bool resp;
-	while (!validResponse) {
-		getline(cin, ans);
-		if (ans == "yes") {
-			validResponse = true;
-			resp = true;
-		}else if (ans == "no") {
-			validResponse = true;
-			resp = false;
-		}else {
-			cout << "Please answer 'yes' or 'no'!" << endl;
-		}
-	}
-	return resp;
-}
-
-int get_one_two() {
-	bool validResponse = false;
-	string ans;
-	int resp;
-	while (!validResponse) {
-		getline(cin, ans);
-		if (ans == "one") {
-			validResponse = true;
-			resp = 1;
-		}
-		else if (ans == "two") {
-			validResponse = true;
-			resp = 2;
-		}
-		else if (ans == "no") {
-			validResponse = true;
-			resp = 0;
-		}
-		else {
-			cout << "Please answer 'one' , 'two' , or 'no'!" << endl;
-		}
-	}
-	return resp;
-}
-
-int FiveCardDraw::betting_one() {
+int SevenCardStud::betting_one() {
 
 	set<int> betterIndices;
 	int callers = 0;
@@ -372,21 +316,21 @@ int FiveCardDraw::betting_one() {
 			betterIndices.insert(i);
 		}
 	}
-	
+
 	int maxBet = 0;
 	bool isBet = false;
-	
+
 	BetterTypes playerType;
 	shared_ptr<Player> currPlayer;
 	int i = 0;
-	
+
 	while (callers < betterIndices.size()) {
 
 		cout << endl << " ================================================================ " << endl << endl;
 
 		cout << "Betters remaining: ";
 		for (auto it = betterIndices.begin(); it != betterIndices.end(); it++) {
-			cout << players[*it]->playerName << "(" << players[*it]->player_chips <<") ";
+			cout << players[*it]->playerName << "(" << players[*it]->player_chips << ") ";
 		}
 		cout << endl;
 
@@ -412,7 +356,7 @@ int FiveCardDraw::betting_one() {
 			if (isBet) {
 				bool playerFinished = false;
 				while (!playerFinished) {
-					
+
 					switch (playerType) {
 					case Fold:
 						cout << currPlayer->playerName << " has folded for this round!" << endl;
@@ -429,7 +373,7 @@ int FiveCardDraw::betting_one() {
 						playerFinished = true;
 						break;
 					case Call:
-						cout << "It will cost " << currPlayer->playerName <<" "<<(maxBet - currPlayer->current_bet) << " chips to Call on the current bet." << endl;
+						cout << "It will cost " << currPlayer->playerName << " " << (maxBet - currPlayer->current_bet) << " chips to Call on the current bet." << endl;
 						cout << "Would " << currPlayer->playerName << " like to Call? (yes or no)" << endl;
 						if (get_response()) {
 							currPlayer->player_chips -= (maxBet - currPlayer->current_bet);
@@ -494,7 +438,7 @@ int FiveCardDraw::betting_one() {
 			else {
 				bool playerFinished = false;
 				while (!playerFinished) {
-					
+
 					switch (playerType) {
 					case Fold:
 						cout << currPlayer->playerName << " has folded for this round!" << endl;
@@ -522,7 +466,7 @@ int FiveCardDraw::betting_one() {
 						cout << currPlayer->playerName << ", would you like to Check?  (yes or no)" << endl;
 						if (get_response()) {
 							if (currPlayer->player_chips == 0) { playerType = AllIn; }
-							else{ playerFinished = true; }
+							else { playerFinished = true; }
 						}
 						else {
 							playerType = Fold;
@@ -576,24 +520,22 @@ int FiveCardDraw::betting_one() {
 					}
 				}
 			}
-			
-			if(betterIndices.find(i) != betterIndices.end()) {
+
+			if (betterIndices.find(i) != betterIndices.end()) {
 				callers++;
 			}
 		}
 
-	i = (i + 1) % (players.size());
+		i = (i + 1) % (players.size());
 	}
-	
+
 	return Success;
 }
- 
-//-------------------------------------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-
+//-------------------------------------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 /*Iterates through the players and at each player calling their turn method and then their after_turn method*/
-int FiveCardDraw::round() {
+int SevenCardStud::round() {
 
 	size_t turnIndex;
 	size_t numPlayers = players.size();
@@ -629,22 +571,22 @@ int FiveCardDraw::round() {
 	return Success;
 }
 
-/*Increments wins and losses, prints out the result of the round, moves all players' cards back to the deck, asks if any player 
+/*Increments wins and losses, prints out the result of the round, moves all players' cards back to the deck, asks if any player
 **wants to leave the game, and asks if any player wants to join the game.
 */
-int FiveCardDraw::after_round() {
+int SevenCardStud::after_round() {
 
 	/*for (int k = 0; k < players.size(); k++) {
-		cout << "players[k]," <<players[k]->playerName << " still betting = " << players[k]->still_betting << endl;
-		cout << "players[k]," << players[k]->playerName << " all in = " << players[k]->all_in << endl;
+	cout << "players[k]," <<players[k]->playerName << " still betting = " << players[k]->still_betting << endl;
+	cout << "players[k]," << players[k]->playerName << " all in = " << players[k]->all_in << endl;
 	}*/
 
 	//make copy so we don't mess with deal order
 	vector<shared_ptr<Player>> copyOfPlayers = players;
 
 	/*for (int k = 0; k < copyOfPlayers.size(); k++) {
-		cout << "Copy of players[k]," << copyOfPlayers[k]->playerName << " still betting = " << copyOfPlayers[k]->still_betting << endl;
-		cout << "Copy of players[k]," << copyOfPlayers[k]->playerName << " all in = " << copyOfPlayers[k]->all_in << endl;
+	cout << "Copy of players[k]," << copyOfPlayers[k]->playerName << " still betting = " << copyOfPlayers[k]->still_betting << endl;
+	cout << "Copy of players[k]," << copyOfPlayers[k]->playerName << " all in = " << copyOfPlayers[k]->all_in << endl;
 	}*/
 
 	//sort the hands based on their poker rank
@@ -711,7 +653,7 @@ int FiveCardDraw::after_round() {
 			}
 
 		}
-	
+
 	}
 	std::cout << endl;
 
@@ -743,7 +685,7 @@ int FiveCardDraw::after_round() {
 
 	//move cards from the discard deck to the main deck
 	for (size_t i = discardDeck.size(); i > zero; i--) {
-		mainDeck.add_card(discardDeck.getCards()[i-one]);
+		mainDeck.add_card(discardDeck.getCards()[i - one]);
 		discardDeck.getCards().pop_back();
 	}
 
@@ -758,13 +700,13 @@ int FiveCardDraw::after_round() {
 		players[i]->all_in = false;
 		players[i]->current_bet = 0;
 	}
-	
+
 	string input;
 	string response;				 //response from user
 	bool removalFinished = false;    //true if removing players step is complete
 	bool additionFinished = false;   //true if adding players step is complete
-	
-	//vector<string> stringsReceived;  //stores the user's response word-by-word
+
+									 //vector<string> stringsReceived;  //stores the user's response word-by-word
 
 
 	for (size_t i = zero; i < leavingBots.size(); i++) {
@@ -775,33 +717,33 @@ int FiveCardDraw::after_round() {
 
 			for (vector<shared_ptr<Player>>::iterator it = players.begin(); it != players.end(); ++it) {
 				string name = (*it)->playerName;
-				
+
 				string numOfWins = to_string((*it)->hands_won);
 				string numOfLosses = to_string((*it)->hands_lost);
 				string numOfChips = to_string((*it)->player_chips);
 
 				if (name.compare(leavingBots[i]) == zero) {
 
-						name.erase(name.size() - 1);
-						ofstream newFile(name + ".txt", ofstream::out);
-						if (newFile.is_open()) {
-							newFile << name << " " << numOfWins << " " << numOfLosses << " " <<numOfChips ;
-						}
-						else {
-							std::cout << "Unable to Open File For This Player: " << leavingBots[i] << endl;
+					name.erase(name.size() - 1);
+					ofstream newFile(name + ".txt", ofstream::out);
+					if (newFile.is_open()) {
+						newFile << name << " " << numOfWins << " " << numOfLosses << " " << numOfChips;
+					}
+					else {
+						std::cout << "Unable to Open File For This Player: " << leavingBots[i] << endl;
 
-						}
-						newFile.close();
-						players.erase(it);
+					}
+					newFile.close();
+					players.erase(it);
 
-						std::cout << "Bot has left the game: " << name << endl;		
-						break;
+					std::cout << "Bot has left the game: " << name << endl;
+					break;
 
 				}
 			}
 		}
 	}
-		leavingBots.clear();
+	leavingBots.clear();
 
 
 	//check chip counts and reup or boot players
@@ -824,7 +766,7 @@ int FiveCardDraw::after_round() {
 		getline(cin, input);
 
 		istringstream inputStream(input);
-	
+
 		//store the words into the vector
 		while (inputStream >> response) {
 			stringsReceived.push_back(response);
@@ -832,7 +774,7 @@ int FiveCardDraw::after_round() {
 
 		//if the response is 'no', then move on.  Otherwise, parse the response and remove the appropriate players
 		if (stringsReceived.size() == one && (response == "no" || response == "No")) {
-				removalFinished = true;
+			removalFinished = true;
 		}
 		else {
 			for (size_t i = zero; i < stringsReceived.size(); i++) {
@@ -843,8 +785,8 @@ int FiveCardDraw::after_round() {
 
 					for (vector<shared_ptr<Player>>::iterator it = players.begin(); it != players.end(); ++it) {
 						string name = (*it)->playerName;
-                        string numOfWins = to_string((*it)->hands_won);
-                        string numOfLosses = to_string((*it)->hands_lost);
+						string numOfWins = to_string((*it)->hands_won);
+						string numOfLosses = to_string((*it)->hands_lost);
 						string chipBalance = to_string((*it)->player_chips);
 
 						if (name.compare(stringsReceived[i]) == zero) {
@@ -865,8 +807,8 @@ int FiveCardDraw::after_round() {
 
 							std::cout << "Player has left the game: " << name << endl;
 							break;
-						
-							
+
+
 						}
 					}
 				}
@@ -906,13 +848,13 @@ int FiveCardDraw::after_round() {
 				catch (ErrorCode e) {
 					program_Usage(e);
 				}
-				
-				
+
+
 			}
 		}
 		stringsReceived.clear();
 	}
-	
+
 	//check if there are a valid number of players
 	if (additionFinished) {
 		if (players.size() == zero) {
@@ -925,5 +867,4 @@ int FiveCardDraw::after_round() {
 
 	return Success;
 }
-
 

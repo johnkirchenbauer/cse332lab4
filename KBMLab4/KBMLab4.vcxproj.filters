@@ -48,6 +48,9 @@
     <ClInclude Include="kbmlab4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SevenCardStud.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -75,6 +78,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="poker_rank_logic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SevenCardStud.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
