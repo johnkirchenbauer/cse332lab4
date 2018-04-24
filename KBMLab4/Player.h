@@ -17,6 +17,8 @@ struct Player {
 
 	string playerName;
 	Hand player_cards;
+	Hand faceup_cards;
+	Hand facedown_cards;
 	unsigned int hands_won;
 	unsigned int hands_lost;
 	int player_chips;

@@ -68,17 +68,10 @@ FiveCardDraw::FiveCardDraw() : dealerPosition(0),pot(0) {
 /*This method receives input from the user telling it which card(s) to discard, and removes those cards from the player's hand*/
 int FiveCardDraw::before_turn(Player & player) {
 
-	if (player.playerName.back() != '*' && (player.still_betting || player.all_in)) {
+	if (player.still_betting || player.all_in) {
 		std::cout << player.playerName << "'s hand: " << player.player_cards << endl;
 	}
 
-	bool botPlayer = false;  //true if the player is a bot
-
-	//check if the player is a bot
-	if (player.playerName.back() == '*' && (player.still_betting || player.all_in)) {
-		botPlayer = true;
-		std::cout << player.playerName << " playing (BOT PLAYER)" << endl;
-	}
 
 
 	string input;					//user input
@@ -93,50 +86,9 @@ int FiveCardDraw::before_turn(Player & player) {
 	enum hand_ranks { no_hand, one_pair, two_pair, three_of_a_kind, straight, flush_hand, full_house, four_of_a_kind, straight_flush };
 	vector<Card> cards = player.player_cards.getCards();
 	
-	int bot_hand = getHandRank(cards);
-
-	if (botPlayer) {
-		if (bot_hand == straight || bot_hand == flush_hand || bot_hand == straight_flush || bot_hand == full_house) {
-			validIndices.clear();
-		}
-		else if (bot_hand == four_of_a_kind || bot_hand == two_pair) {
-			validIndices = fourOfAKind_or_twoPair_DiscardIndices(cards);
-		}
-		else if (bot_hand == three_of_a_kind) {
-			validIndices = threeOfAKindDiscardIndices(cards);
-		}
-		else if (bot_hand == one_pair) {
-			validIndices = onePairDiscardIndices(cards);
-		}
-		else if (bot_hand == no_hand) {
-			validIndices = noHandDiscardIndices(cards);
-		}
-
-		sort(validIndices.begin(), validIndices.end(), comp);
-
-		for (size_t i = zero; i < validIndices.size(); i++) {
-			try {
-				discardDeck.add_card(player.player_cards[validIndices[i]]);
-				player.player_cards.remove_card(validIndices[i]);
-			}
-			catch (...) {
-				throw;
-			}
-
-		}
-
-		//std::cout << player.playerName << " discarded indices: "; 
-		//for (int i = 0; i < validIndices.size(); ++i) {
-		//	std::cout << validIndices[i] << " ";
-		//}
-		//std::cout << endl;
-	}
-
-
-
 	
 
-	while ((player.still_betting || player.all_in) && !validInput && !botPlayer) {
+	while ((player.still_betting || player.all_in) && !validInput) {
 		std::cout << "Enter the indices of any cards you want to discard (1-5).  Press Enter to keep all cards." << endl;
 		getline(cin, input);
 	
@@ -591,7 +543,6 @@ int FiveCardDraw::betting_one() {
 //-------------------------------------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
-
 /*Iterates through the players and at each player calling their turn method and then their after_turn method*/
 int FiveCardDraw::round() {
 
@@ -655,11 +606,6 @@ int FiveCardDraw::after_round() {
 
 	vector<string> stringsReceived;  //names of players that will be removed
 
-	unsigned int prob_leave_if_win = 10;
-	unsigned int prob_leave_if_bottom = 90;
-	unsigned int prob_leave_if_middle = 50;
-	vector<string> leavingBots;
-
 	int j = 0;
 	while (j < copyOfPlayers.size()) {
 		if (copyOfPlayers[j]->still_betting == true || copyOfPlayers[j]->all_in == true) {
@@ -679,37 +625,10 @@ int FiveCardDraw::after_round() {
 				cout << "BootyLoot: " << pot << endl;
 				pot = 0;
 			}
-			//10% probability of bot leaving if it won the hand
-			if (copyOfPlayers[i]->playerName.back() == '*') {
-				unsigned int randNum = rand() % 100;
-
-				if (randNum < prob_leave_if_win) {
-					leavingBots.push_back(copyOfPlayers[i]->playerName);
-				}
-			}
 		}
 
 		else {
 			copyOfPlayers[i]->hands_lost++;
-
-			//90% probability of bot leaving if it had the worst hand, and 50% if they have neither the best nor the worst hand
-			if (copyOfPlayers[i]->playerName.back() == '*') {
-				if (i == copyOfPlayers.size() - 1) {
-					unsigned int randNum = rand() % 100;
-
-					if (randNum < prob_leave_if_bottom) {
-						leavingBots.push_back(copyOfPlayers[i]->playerName);
-					}
-				}
-				else {
-					unsigned int randNum = rand() % 100;
-
-					if (randNum < prob_leave_if_middle) {
-						leavingBots.push_back(copyOfPlayers[i]->playerName);
-					}
-				}
-			}
-
 		}
 	
 	}
@@ -766,44 +685,6 @@ int FiveCardDraw::after_round() {
 	
 	//vector<string> stringsReceived;  //stores the user's response word-by-word
 
-
-	for (size_t i = zero; i < leavingBots.size(); i++) {
-
-		shared_ptr<Player> currPlayer = Game::find_player(leavingBots[i]);
-
-		if (currPlayer != nullptr) {
-
-			for (vector<shared_ptr<Player>>::iterator it = players.begin(); it != players.end(); ++it) {
-				string name = (*it)->playerName;
-				
-				string numOfWins = to_string((*it)->hands_won);
-				string numOfLosses = to_string((*it)->hands_lost);
-				string numOfChips = to_string((*it)->player_chips);
-
-				if (name.compare(leavingBots[i]) == zero) {
-
-						name.erase(name.size() - 1);
-						ofstream newFile(name + ".txt", ofstream::out);
-						if (newFile.is_open()) {
-							newFile << name << " " << numOfWins << " " << numOfLosses << " " <<numOfChips ;
-						}
-						else {
-							std::cout << "Unable to Open File For This Player: " << leavingBots[i] << endl;
-
-						}
-						newFile.close();
-						players.erase(it);
-
-						std::cout << "Bot has left the game: " << name << endl;		
-						break;
-
-				}
-			}
-		}
-	}
-		leavingBots.clear();
-
-
 	//check chip counts and reup or boot players
 	for (int i = 0; i < players.size(); i++) {
 		if (players[i]->player_chips <= 0) {
@@ -848,10 +729,6 @@ int FiveCardDraw::after_round() {
 						string chipBalance = to_string((*it)->player_chips);
 
 						if (name.compare(stringsReceived[i]) == zero) {
-							if (name.back() == '*') {
-								name.erase(name.size() - 1);
-							}
-
 							ofstream newFile(name + ".txt", ofstream::out);
 							if (newFile.is_open()) {
 								newFile << name << " " << numOfWins << " " << numOfLosses << " " << chipBalance;

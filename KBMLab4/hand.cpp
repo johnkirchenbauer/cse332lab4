@@ -50,6 +50,11 @@ Hand::Hand(const Hand & h) {
 	this->cards = h.cards;
 }
 
+
+Hand::Hand(vector<Card> cards) {
+	this->cards = cards;
+}
+
 /*Assignment operator:  if the other hand is not 'this', then overwrite the contents of the member variable*/
 Hand & Hand::operator=(const Hand & h) {
 	//check for self-assignment
@@ -189,8 +194,22 @@ Hand & operator<<(Hand & hand, Deck & deck) {
 	return hand;
 }
 
+
+void add_card(Hand & h1, Hand & h2, Deck & deck) {
+	if (deck.size() == zero) {
+		return;
+	}
+
+	h1.cards.push_back(deck.getCards()[deck.size() - one]);  //push the last card on the deck to the hand
+	h2.cards.push_back(deck.getCards()[deck.size() - one]);
+	deck.getCards().pop_back();								 //remove the last card from the deck
+	sort(h1.cards.begin(), h1.cards.end());				 //sort the hand
+	sort(h2.cards.begin(), h2.cards.end());
+
+}
+
 /*getter method that returns the member variable*/
-const vector<Card> Hand::getCards() {
+vector<Card> & Hand::getCards() {
 	return this->cards;
 }
 
@@ -211,4 +230,13 @@ void Hand::remove_card(size_t index) {
 	//std::cout << "remove_card() size_t is: " << index << endl;
 	this->cards.erase(this->cards.begin() + index);
 	
+}
+
+void Hand::clear_hand() {
+	this->cards.clear();
+}
+
+void Hand::add_card(Card c) {
+	this->cards.push_back(c);
+	sort(this->cards.begin(), this->cards.end());
 }

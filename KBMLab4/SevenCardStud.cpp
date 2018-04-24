@@ -55,156 +55,13 @@ SevenCardStud::SevenCardStud() : dealerPosition(0), pot(0) {
 
 /*This method receives input from the user telling it which card(s) to discard, and removes those cards from the player's hand*/
 int SevenCardStud::before_turn(Player & player) {
-
-	if (player.playerName.back() != '*' && (player.still_betting || player.all_in)) {
-		std::cout << player.playerName << "'s hand: " << player.player_cards << endl;
-	}
-
-	bool botPlayer = false;  //true if the player is a bot
-
-							 //check if the player is a bot
-	if (player.playerName.back() == '*' && (player.still_betting || player.all_in)) {
-		botPlayer = true;
-		std::cout << player.playerName << " playing (BOT PLAYER)" << endl;
-	}
-
-
-	string input;					//user input
-	vector<char> charsReceived;     //the characters received from the user
-	vector<size_t> validIndices;    //takes all the valid characters from charsReceived and converts them to size_t
-	string indexBuf;
-	char indexChar;
-
-	bool invalidString = false;     //true if the input character has incorrect length
-	bool validInput = false;        //true if the user input is of correct length
-
-	enum hand_ranks { no_hand, one_pair, two_pair, three_of_a_kind, straight, flush_hand, full_house, four_of_a_kind, straight_flush };
-	vector<Card> cards = player.player_cards.getCards();
-
-	int bot_hand = getHandRank(cards);
-
-	if (botPlayer) {
-		if (bot_hand == straight || bot_hand == flush_hand || bot_hand == straight_flush || bot_hand == full_house) {
-			validIndices.clear();
-		}
-		else if (bot_hand == four_of_a_kind || bot_hand == two_pair) {
-			validIndices = fourOfAKind_or_twoPair_DiscardIndices(cards);
-		}
-		else if (bot_hand == three_of_a_kind) {
-			validIndices = threeOfAKindDiscardIndices(cards);
-		}
-		else if (bot_hand == one_pair) {
-			validIndices = onePairDiscardIndices(cards);
-		}
-		else if (bot_hand == no_hand) {
-			validIndices = noHandDiscardIndices(cards);
-		}
-
-		sort(validIndices.begin(), validIndices.end(), comp);
-
-		for (size_t i = zero; i < validIndices.size(); i++) {
-			try {
-				discardDeck.add_card(player.player_cards[validIndices[i]]);
-				player.player_cards.remove_card(validIndices[i]);
-			}
-			catch (...) {
-				throw;
-			}
-
-		}
-
-		//std::cout << player.playerName << " discarded indices: "; 
-		//for (int i = 0; i < validIndices.size(); ++i) {
-		//	std::cout << validIndices[i] << " ";
-		//}
-		//std::cout << endl;
-	}
-
-
-
-
-
-	while ((player.still_betting || player.all_in) && !validInput && !botPlayer) {
-		std::cout << "Enter the indices of any cards you want to discard (1-5).  Press Enter to keep all cards." << endl;
-		getline(cin, input);
-
-		istringstream inputStream(input);
-
-		invalidString = false;
-
-		while (inputStream >> indexBuf) {
-
-			invalidString = false;
-
-			//if the length of the word is one, add it to the charsReceived vector, otherwise set the invalidString boolean flag to true.
-			if (indexBuf.length() == one) {
-				indexChar = indexBuf.at(zero);
-				charsReceived.push_back(indexChar);
-			}
-			else {
-				invalidString = true;
-			}
-		}
-
-		//if a valid number of indices are received, convert them to size_t and add it to the validIndices vector
-		if (!invalidString) {
-			if (charsReceived.size() <= five && charsReceived.size() >= zero) {
-
-				validInput = true;
-
-				for (size_t i = zero; i < charsReceived.size(); i++) {
-					if ((charsReceived[i]) >= 0x31 && (charsReceived[i]) <= 0x35) {
-						validIndices.push_back((size_t)((charsReceived[i] - one) - '0'));
-
-					}
-					else {
-						charsReceived.clear();
-						validIndices.clear();
-						std::cout << "invalid index provided" << endl;
-						validInput = false;
-						break;
-					}
-				}
-			}
-			else {
-				charsReceived.clear();
-				validIndices.clear();
-				std::cout << "Too many indices provided." << endl;
-				validInput = false;
-			}
-		}
-		else {
-			charsReceived.clear();
-			validIndices.clear();
-			std::cout << "Invalid index provided." << endl;
-			validInput = false;
-		}
-
-		//if the input is valid, remove the appropriate cards from the player's hand
-		if (validInput) {
-			sort(validIndices.begin(), validIndices.end(), comp);
-			for (size_t i = zero; i < validIndices.size(); i++) {
-				try {
-					discardDeck.add_card(player.player_cards[validIndices[i]]);
-					player.player_cards.remove_card(validIndices[i]);
-				}
-				catch (...) {
-					throw;
-				}
-
-			}
-			return Success;
-		}
-
-	}
 	return Success;
 }
 
 /*This method deals cards to players who have less than 5 cards.*/
 int SevenCardStud::turn(Player & p) {
 
-	while (p.player_cards.size() < five) {
-
+	if (p.player_cards.size() == 6) {
 		//if neither deck has enough cards, throw an exception, otherwise move the card from the deck to the player's hand
 		if (mainDeck.size() <= zero) {
 
@@ -214,12 +71,30 @@ int SevenCardStud::turn(Player & p) {
 			}
 			else {
 				discardDeck.shuffleDeck();
-				p.player_cards << discardDeck;
+				add_card(p.facedown_cards, p.player_cards, discardDeck);
 			}
 
 		}
+		else {
+			add_card(p.facedown_cards, p.player_cards, mainDeck);
+		}
+	}
+	else {
+		if (mainDeck.size() <= zero) {
 
-		p.player_cards << mainDeck;
+			if (discardDeck.size() <= zero) {
+				throw TooFewCards;
+
+			}
+			else {
+				discardDeck.shuffleDeck();
+				add_card(p.faceup_cards, p.player_cards, discardDeck);
+			}
+
+		}
+		else {
+			add_card(p.faceup_cards, p.player_cards, mainDeck);
+		}
 	}
 	return Success;
 }
@@ -254,10 +129,17 @@ int SevenCardStud::before_round() {
 	size_t dealIndex;
 
 	//deal each player 5 cards each from the deck
-	for (size_t numCards = zero; numCards < five; numCards++) {
+	for (size_t numCards = zero; numCards < three; numCards++) {
 		for (size_t i = one; i <= numPlayers; ++i) {
 			dealIndex = (dealerPosition + i) % numPlayers;
-			players[dealIndex]->player_cards << mainDeck;
+			if (numCards == 2) {
+				add_card(players[dealIndex]->faceup_cards, players[dealIndex]->player_cards, mainDeck);
+				//players[dealIndex]->faceup_cards << mainDeck;
+			}
+			else {
+				//players[dealIndex]->facedown_cards << mainDeck;
+				add_card(players[dealIndex]->facedown_cards, players[dealIndex]->player_cards, mainDeck);
+			}
 		}
 	}
 
@@ -350,8 +232,23 @@ int SevenCardStud::betting_one() {
 				(playerChips > 0 ? playerType = Check : playerType = AllIn);
 			}
 
-			cout << currPlayer->playerName << " has " << currPlayer->player_chips << " chips." << endl;
-			cout << players[i]->playerName << "'s hand: " << players[i]->player_cards << endl;
+			//cout << currPlayer->playerName << " has " << currPlayer->player_chips << " chips." << endl;
+
+			cout << players[i]->playerName << "'s Cards: " << players[i]->player_cards << endl;
+
+			
+			for (size_t j = 0; j < players.size(); ++j) {
+				if (i != j && (players[j]->still_betting || players[j]->all_in)) {
+					cout << players[j]->playerName << "'s Cards: ";
+
+					for (size_t k = 0; k < players[j]->facedown_cards.size(); ++k) {
+						cout << "* ";
+					}
+
+					cout << players[j]->faceup_cards << endl;
+				}
+			}
+
 
 			if (isBet) {
 				bool playerFinished = false;
@@ -541,34 +438,136 @@ int SevenCardStud::round() {
 	size_t numPlayers = players.size();
 
 	//call turn and after_turn methods for each player
-	for (size_t i = one; i <= numPlayers; ++i) {
-		turnIndex = (dealerPosition + i) % numPlayers;
+	for (size_t betRound = 0; betRound < 4; ++betRound) {
+		for (size_t i = one; i <= numPlayers; ++i) {
+			turnIndex = (dealerPosition + i) % numPlayers;
 
-		if (players[turnIndex]->still_betting || players[turnIndex]->all_in) {
-			int turnResult = turn(*players[turnIndex]);
+			if (players[turnIndex]->still_betting || players[turnIndex]->all_in) {
+				int turnResult = turn(*players[turnIndex]);
 
-			if (turnResult != 0) {
-				return Failure;
+				if (turnResult != 0) {
+					return Failure;
+				}
+
+
 			}
 
-			int afterTurnResult = after_turn(*players[turnIndex]);
-
-			if (afterTurnResult != 0) {
-				return Failure;
-			}
 		}
 
+		//reset current bet amount to 0
+		for (int i = 0; i < players.size(); i++) {
+			players[i]->current_bet = 0;
+		}
+
+		cout << endl;
+		cout << endl;
+		cout << "Next round of betting starting" << endl;
+		betting_one();
 	}
 
-	//second betting round
-	for (int i = 0; i < players.size(); i++) {
-		players[i]->current_bet = 0;
+	//call after_turn on all players
+	for (size_t i = zero; i < numPlayers; ++i) {
+		int afterTurnResult = after_turn(*players[i]);
+
+		if (afterTurnResult != 0) {
+			return Failure;
+		}
 	}
 
-	cout << "Second round of betiing starting" << endl;
-	betting_one();
-
+	cout << "after_turn success" << endl;
 	return Success;
+}
+
+/*get every possible combination of indices (to choose 5 cards from 7), e.g. [0,1,2,3,4], [0,1,2,3,5], etc */
+set<vector<size_t>> get_all_combinations() {
+
+	set<vector<size_t>> s;  //the set that will be returned
+
+	vector<size_t> indices;  //the indices of the 5 selected cards
+
+	//add the indices to the set, and clear the indices each time through
+	for (size_t i = 0; i < 3; ++i) {
+		for (size_t j = i+1; j < 4; ++j) {
+			for (size_t k = j+1; k < 5; ++k) {
+				for (size_t m = k+1; m < 6; ++m) {
+					for (size_t n = m+1; n < 7; ++n) {
+						indices.push_back(i);
+						indices.push_back(j);
+						indices.push_back(k);
+						indices.push_back(m);
+						indices.push_back(n);
+						s.insert(indices);
+						indices.clear();
+					}
+					
+				}
+			}
+		}
+	}
+
+	return s;
+	
+}
+
+/*Returns the best 5-card hand from the 7 cards in the hand*/
+Hand get_best_hand(Hand & h) {
+	if (h.size() != 7) {
+		cout << "invalid hand length" << endl;
+		vector<Card> dummy;
+		Card c1 = { Card::spades, Card::two };
+		Card c2 = { Card::spades, Card::three };
+		Card c3 = { Card::spades, Card::four };
+		Card c4 = { Card::spades, Card::five };
+		Card c5 = { Card::hearts, Card::seven };
+		dummy.push_back(c1);
+		dummy.push_back(c2);
+		dummy.push_back(c3);
+		dummy.push_back(c4);
+		dummy.push_back(c5);
+		sort(dummy.begin(), dummy.end());
+
+		return Hand(dummy);
+	}
+
+	int best_hand_score = -1;   //score of the best hand
+
+	Hand bestHand;   //the hand that eventually gets returned.
+	Hand temp;       //temporary variable to store intermediate hands
+
+	set<vector<size_t>> combos = get_all_combinations();  //get all the combinations (7 choose 5)
+	
+	//add the cards at the appropriate indices to temp, compare temp to the current best hand, and replace if necessary
+	for (set<vector<size_t>>::iterator it = combos.begin(); it != combos.end(); ++it) {
+		for (size_t i = 0; i < (*it).size(); ++i) {
+			size_t index = (*it)[i];
+			cout << "Index: " << index << endl;
+			cout << "Player cards: " << h.getCards() << endl;
+			temp.getCards().push_back(h.getCards()[index]);
+		}
+		cout << "yay" << endl;
+
+		int tempRank = getHandRank(temp.getCards());  //rank of the temp hand
+		cout << "yay2" << endl;
+		//if the temp hand is better, update bestHand
+		if (tempRank > best_hand_score) {
+			best_hand_score = tempRank;
+			bestHand = temp;
+		}
+
+		//if both are equal, call poker rank to determine the better hand
+		//if (tempRank == best_hand_score) {
+		//	if (poker_rank(temp, bestHand)) {
+		//		bestHand = temp;
+		//	}
+		//}
+		cout << "yay3" << endl;
+
+		temp.clear_hand();  //clear the temp hand
+	}
+
+	cout << "yay4" << endl;
+	return bestHand;
+
 }
 
 /*Increments wins and losses, prints out the result of the round, moves all players' cards back to the deck, asks if any player
@@ -589,18 +588,26 @@ int SevenCardStud::after_round() {
 	cout << "Copy of players[k]," << copyOfPlayers[k]->playerName << " all in = " << copyOfPlayers[k]->all_in << endl;
 	}*/
 
+
+	//choose the best hand for each player
+	for (size_t i = 0; i < copyOfPlayers.size(); ++i) {
+		Hand bestHand = get_best_hand(copyOfPlayers[i]->player_cards);
+		copyOfPlayers[i]->player_cards.clear_hand();
+		copyOfPlayers[i]->player_cards = bestHand;
+
+	}
+
+	cout << "yay5" << endl;
+
+
 	//sort the hands based on their poker rank
 	sort(copyOfPlayers.begin(), copyOfPlayers.end(), [](shared_ptr<Player> p1, shared_ptr<Player> p2) {
 		return poker_rank(p1->player_cards, p2->player_cards);
 	});
 	std::cout << endl;
-
+	cout << "sort poker hand succes" << endl;
 	vector<string> stringsReceived;  //names of players that will be removed
 
-	unsigned int prob_leave_if_win = 10;
-	unsigned int prob_leave_if_bottom = 90;
-	unsigned int prob_leave_if_middle = 50;
-	vector<string> leavingBots;
 
 	int j = 0;
 	while (j < copyOfPlayers.size()) {
@@ -621,41 +628,15 @@ int SevenCardStud::after_round() {
 				cout << "BootyLoot: " << pot << endl;
 				pot = 0;
 			}
-			//10% probability of bot leaving if it won the hand
-			if (copyOfPlayers[i]->playerName.back() == '*') {
-				unsigned int randNum = rand() % 100;
-
-				if (randNum < prob_leave_if_win) {
-					leavingBots.push_back(copyOfPlayers[i]->playerName);
-				}
-			}
 		}
 
 		else {
 			copyOfPlayers[i]->hands_lost++;
-
-			//90% probability of bot leaving if it had the worst hand, and 50% if they have neither the best nor the worst hand
-			if (copyOfPlayers[i]->playerName.back() == '*') {
-				if (i == copyOfPlayers.size() - 1) {
-					unsigned int randNum = rand() % 100;
-
-					if (randNum < prob_leave_if_bottom) {
-						leavingBots.push_back(copyOfPlayers[i]->playerName);
-					}
-				}
-				else {
-					unsigned int randNum = rand() % 100;
-
-					if (randNum < prob_leave_if_middle) {
-						leavingBots.push_back(copyOfPlayers[i]->playerName);
-					}
-				}
-			}
-
 		}
 
 	}
 	std::cout << endl;
+	cout << "increment decrement winner loser success" << endl;
 
 	//print out the player hands
 	for (size_t i = zero; i < copyOfPlayers.size(); i++) {
@@ -670,7 +651,7 @@ int SevenCardStud::after_round() {
 
 	//transfer the cards from the player hands back to the deck
 	for (size_t i = zero; i < copyOfPlayers.size(); i++) {
-		for (int j = four; j >= zero; j--) {
+		for (int j = copyOfPlayers[i]->player_cards.size() -1 ; j >= zero; j--) {
 
 			size_t k = j;
 
@@ -681,6 +662,9 @@ int SevenCardStud::after_round() {
 			copyOfPlayers[i]->player_cards.remove_card(k);
 
 		}
+		copyOfPlayers[i]->facedown_cards.clear_hand();
+		copyOfPlayers[i]->faceup_cards.clear_hand();
+
 	}
 
 	//move cards from the discard deck to the main deck
@@ -707,43 +691,6 @@ int SevenCardStud::after_round() {
 	bool additionFinished = false;   //true if adding players step is complete
 
 									 //vector<string> stringsReceived;  //stores the user's response word-by-word
-
-
-	for (size_t i = zero; i < leavingBots.size(); i++) {
-
-		shared_ptr<Player> currPlayer = Game::find_player(leavingBots[i]);
-
-		if (currPlayer != nullptr) {
-
-			for (vector<shared_ptr<Player>>::iterator it = players.begin(); it != players.end(); ++it) {
-				string name = (*it)->playerName;
-
-				string numOfWins = to_string((*it)->hands_won);
-				string numOfLosses = to_string((*it)->hands_lost);
-				string numOfChips = to_string((*it)->player_chips);
-
-				if (name.compare(leavingBots[i]) == zero) {
-
-					name.erase(name.size() - 1);
-					ofstream newFile(name + ".txt", ofstream::out);
-					if (newFile.is_open()) {
-						newFile << name << " " << numOfWins << " " << numOfLosses << " " << numOfChips;
-					}
-					else {
-						std::cout << "Unable to Open File For This Player: " << leavingBots[i] << endl;
-
-					}
-					newFile.close();
-					players.erase(it);
-
-					std::cout << "Bot has left the game: " << name << endl;
-					break;
-
-				}
-			}
-		}
-	}
-	leavingBots.clear();
 
 
 	//check chip counts and reup or boot players
@@ -790,9 +737,6 @@ int SevenCardStud::after_round() {
 						string chipBalance = to_string((*it)->player_chips);
 
 						if (name.compare(stringsReceived[i]) == zero) {
-							if (name.back() == '*') {
-								name.erase(name.size() - 1);
-							}
 
 							ofstream newFile(name + ".txt", ofstream::out);
 							if (newFile.is_open()) {
@@ -867,4 +811,7 @@ int SevenCardStud::after_round() {
 
 	return Success;
 }
+
+
+
 

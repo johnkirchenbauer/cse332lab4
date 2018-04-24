@@ -20,7 +20,7 @@
 using namespace std;
 
 /*Constructor that initializes a Player's name member variable, and initializes its wins and losses member variables*/
-Player::Player(char * name) :  playerName(name), hands_won(zero), hands_lost(zero), player_cards(),player_chips(twenty),still_betting(true),current_bet(0),all_in(false) {
+Player::Player(char * name) :  playerName(name), hands_won(zero), hands_lost(zero), player_cards(),faceup_cards(), facedown_cards(), player_chips(twenty),still_betting(true),current_bet(0),all_in(false) {
 	bool isBot = false;
 
 
