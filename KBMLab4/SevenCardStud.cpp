@@ -51,6 +51,10 @@ SevenCardStud::SevenCardStud() : dealerPosition(0), pot(0) {
 	}
 }
 
+int SevenCardStud::before_turn(Player & player) {
+	return Success;
+}
+
 /*This method deals cards to players who have less than 5 cards.*/
 int SevenCardStud::turn(Player & p) {
 
@@ -504,7 +508,7 @@ set<vector<size_t>> get_all_combinations() {
 
 /*Returns the best 5-card hand from the 7 cards in the hand*/
 Hand get_best_hand(Hand & h) {
-	if (h.size() != 7) {
+	/*if (h.size() != 7) {
 		cout << "invalid hand length" << endl;
 		vector<Card> dummy;
 		Card c1 = { Card::spades, Card::two };
@@ -520,7 +524,7 @@ Hand get_best_hand(Hand & h) {
 		sort(dummy.begin(), dummy.end());
 
 		return Hand(dummy);
-	}
+	}*/
 
 	int best_hand_score = -1;   //score of the best hand
 
@@ -533,8 +537,8 @@ Hand get_best_hand(Hand & h) {
 	for (set<vector<size_t>>::iterator it = combos.begin(); it != combos.end(); ++it) {
 		for (size_t i = 0; i < (*it).size(); ++i) {
 			size_t index = (*it)[i];
-			cout << "Index: " << index << endl;
-			cout << "Player cards: " << h.getCards() << endl;
+			//cout << "Index: " << index << endl;
+			//cout << "Player cards: " << h.getCards() << endl;
 			temp.getCards().push_back(h.getCards()[index]);
 		}
 		cout << "yay" << endl;
@@ -584,9 +588,13 @@ int SevenCardStud::after_round() {
 
 	//choose the best hand for each player
 	for (size_t i = 0; i < copyOfPlayers.size(); ++i) {
-		Hand bestHand = get_best_hand(copyOfPlayers[i]->player_cards);
-		copyOfPlayers[i]->player_cards.clear_hand();
-		copyOfPlayers[i]->player_cards = bestHand;
+		if (copyOfPlayers[i]->player_cards.size() == 7) {
+			Hand bestHand = get_best_hand(copyOfPlayers[i]->player_cards);
+			copyOfPlayers[i]->player_cards.clear_hand();
+			copyOfPlayers[i]->player_cards = bestHand;
+		}
+
+		
 
 	}
 
@@ -595,34 +603,59 @@ int SevenCardStud::after_round() {
 
 	//sort the hands based on their poker rank
 	sort(copyOfPlayers.begin(), copyOfPlayers.end(), [](shared_ptr<Player> p1, shared_ptr<Player> p2) {
-		return poker_rank(p1->player_cards, p2->player_cards);
+		bool p1Fold = !p1->all_in && !p1->still_betting;
+		bool p2Fold = !p2->all_in && !p2->still_betting;
+
+		bool ans = false;
+
+		if (!p1Fold && !p2Fold) {
+			ans = poker_rank(p1->player_cards, p2->player_cards);
+		}
+		else {
+
+			if (p2Fold) {
+				ans = true;
+			}
+
+			if (p1Fold) {
+				ans = false;
+			}
+		}
+
+		return ans;
+
 	});
 	std::cout << endl;
 	cout << "sort poker hand succes" << endl;
 	vector<string> stringsReceived;  //names of players that will be removed
 
 
-	int j = 0;
-	while (j < copyOfPlayers.size()) {
-		if (copyOfPlayers[j]->still_betting == true || copyOfPlayers[j]->all_in == true) {
-			break;
-		}
-		j++;
-	}
+	//int j = 0;
+	//while (j < copyOfPlayers.size()) {
+	//	if (copyOfPlayers[j]->still_betting == true || copyOfPlayers[j]->all_in == true) {
+	//		break;
+	//	}
+	//	j++;
+	//}
 
 	//increment score for winner, decrement score for losers
-	for (size_t i = j; i < copyOfPlayers.size(); i++) {
-		if (!poker_rank(copyOfPlayers[j]->player_cards, copyOfPlayers[i]->player_cards)) {
-			//block not still betting
-			if (copyOfPlayers[i]->still_betting == true || players[i]->all_in == true) {
+	for (size_t i = 0; i < copyOfPlayers.size(); i++) {
+		if (copyOfPlayers[i]->all_in || copyOfPlayers[i]->still_betting) {
+			if (!poker_rank(copyOfPlayers[0]->player_cards, copyOfPlayers[i]->player_cards)) {
+				//block not still betting
+				//if (copyOfPlayers[i]->still_betting == true || players[i]->all_in == true) {
 				std::cout << "Winner: " << copyOfPlayers[i]->playerName << endl;
 				copyOfPlayers[i]->hands_won++;
 				copyOfPlayers[i]->player_chips += pot;
 				cout << "BootyLoot: " << pot << endl;
 				pot = 0;
+				//}
+			}
+
+			else {
+				copyOfPlayers[i]->hands_lost++;
 			}
 		}
-
 		else {
 			copyOfPlayers[i]->hands_lost++;
 		}
@@ -633,12 +666,17 @@ int SevenCardStud::after_round() {
 
 	//print out the player hands
 	for (size_t i = zero; i < copyOfPlayers.size(); i++) {
-		/*cout << "Copy of players[i]," << copyOfPlayers[i]->playerName << " still betting = " << copyOfPlayers[i]->still_betting << endl;
-		cout << "Copy of players[i]," << copyOfPlayers[i]->playerName << " all in = " << copyOfPlayers[i]->all_in << endl;*/
-		if ((copyOfPlayers[i]->still_betting == true) || (copyOfPlayers[i]->all_in == true)) {
-			std::cout << *copyOfPlayers[i] << endl;
-			std::cout << copyOfPlayers[i]->player_cards << endl;
+
+		std::cout << *copyOfPlayers[i] << endl;
+		std::cout << copyOfPlayers[i]->player_cards;
+		if ((!copyOfPlayers[i]->still_betting) && !(copyOfPlayers[i]->all_in)) {
+			cout << " (FOLDED)";
 		}
+			
+		cout << endl;
+
+
+
 	}
 	std::cout << endl;
 

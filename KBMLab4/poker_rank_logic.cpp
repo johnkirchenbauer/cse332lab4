@@ -172,6 +172,7 @@ int getHandRank(const vector<Card> & v) {
 
 /*This function compares two poker hands, and returns 1 if the first hand is better than the second hand*/
 bool poker_rank(const Hand & h1, const Hand & h2) {
+
 	const int hands_are_equal = zero;  //this value is returned if the hands are equal in rank
 
 	if (h1 == h2) {
