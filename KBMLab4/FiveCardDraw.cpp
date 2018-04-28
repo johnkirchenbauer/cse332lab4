@@ -351,7 +351,14 @@ int FiveCardDraw::betting_one() {
 
 			if (isBet) {
 				cout << "The current bet is " << maxBet << "." << endl;
-				(playerChips >= betDiff ? playerType = Call : playerType = AllIn);
+				bool needAllChips = false;
+				playerChips >= betDiff ? playerType = Call : needAllChips = true;
+
+				if(needAllChips){
+					cout << players[i]->playerName << " need's to put in all their chips to call. Would they like to call? (yes or no)" << endl;
+					get_response() ? playerType = AllIn : playerType = Fold;
+					needAllChips = false;
+				}
 			}
 			else {
 				cout << "No bet has been made." << endl;

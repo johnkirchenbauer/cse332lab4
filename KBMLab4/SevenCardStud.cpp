@@ -49,13 +49,6 @@ SevenCardStud::SevenCardStud() : dealerPosition(0), pot(0) {
 			mainDeck.add_card(c);
 		}
 	}
-
-
-}
-
-/*This method receives input from the user telling it which card(s) to discard, and removes those cards from the player's hand*/
-int SevenCardStud::before_turn(Player & player) {
-	return Success;
 }
 
 /*This method deals cards to players who have less than 5 cards.*/
@@ -150,7 +143,7 @@ int SevenCardStud::before_round() {
 	//call before_turn for each player
 	for (size_t i = one; i <= numPlayers; ++i) {
 		dealIndex = (dealerPosition + i) % numPlayers;
-		before_turn(*players[dealIndex]);
+		
 	}
 	std::cout << endl;
 

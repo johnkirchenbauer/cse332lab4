@@ -25,7 +25,7 @@ int main(int argc, char * argv[]) {
 
 	//hardcode for debugging
 	argc = 5;
-	argv[1] = "SevenCardStud";
+	argv[1] = "FiveCardDraw";
 	argv[2] = "alex";
 	argv[3] = "john";
 	argv[4] = "zach";
