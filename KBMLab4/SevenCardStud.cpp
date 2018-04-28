@@ -205,15 +205,16 @@ int SevenCardStud::betting_one() {
 
 	while (callers < betterIndices.size()) {
 
-		cout << endl << " ================================================================ " << endl << endl;
-
-		cout << "Betters remaining: ";
-		for (auto it = betterIndices.begin(); it != betterIndices.end(); it++) {
-			cout << players[*it]->playerName << "(" << players[*it]->player_chips << ") ";
-		}
-		cout << endl;
+		
 
 		if (betterIndices.find(i) != betterIndices.end()) {
+			cout << endl << " ================================================================ " << endl << endl;
+
+			cout << "Betters remaining: ";
+			for (auto it = betterIndices.begin(); it != betterIndices.end(); it++) {
+				cout << players[*it]->playerName << "(" << players[*it]->player_chips << ") ";
+			}
+			cout << endl;
 
 			currPlayer = players[i];
 

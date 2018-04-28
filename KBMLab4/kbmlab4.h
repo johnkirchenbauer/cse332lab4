@@ -19,9 +19,12 @@ enum ErrorCode {
 	PlayerAlreadyPlaying = 8,
 	UnknownGame = 9,
 	AllPlayersLeft = 10,
-	InvalidName = 11
+	InvalidName = 11,
+	Usage = 12
 };
 
+
 int program_Usage(ErrorCode code);
+vector<string> gamePrompt();
 
 #endif

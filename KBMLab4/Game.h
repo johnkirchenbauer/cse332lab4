@@ -30,7 +30,8 @@ enum numbersUsed {
 	eleven,
 	twelve,
 	thirteen,
-	twenty = 20
+	twenty = 20,
+	twentyfour = 24
 };	
 
 
@@ -50,6 +51,7 @@ public:
 	static void stop_game();
 	void add_player(const string & s);
 	shared_ptr<Player> find_player(const string & s);
+	void emptyPlayers();
 	virtual ~Game();
 	virtual int before_turn(Player & p) = 0;
 	virtual int turn(Player & p) = 0;

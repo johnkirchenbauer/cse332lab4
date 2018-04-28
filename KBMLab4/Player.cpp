@@ -21,14 +21,7 @@ using namespace std;
 
 /*Constructor that initializes a Player's name member variable, and initializes its wins and losses member variables*/
 Player::Player(char * name) :  playerName(name), hands_won(zero), hands_lost(zero), player_cards(),faceup_cards(), facedown_cards(), player_chips(twenty),still_betting(true),current_bet(0),all_in(false) {
-	bool isBot = false;
-
-
-
-	if (name[strlen(name)-1] == '*') {
-		name[strlen(name) - 1] = 0;
-		isBot = true;
-	}
+	
 
 	if (string(name) == "no" || string(name) == "No" ) {
 		throw InvalidName;
@@ -49,9 +42,7 @@ Player::Player(char * name) :  playerName(name), hands_won(zero), hands_lost(zer
 
 	//Check if the function was able to open the file. 
 	if (!file.is_open()) {
-		if (isBot) {
-			this->playerName = string(name) + '*';
-		}
+		
 		return;
 	}
 
@@ -71,12 +62,8 @@ Player::Player(char * name) :  playerName(name), hands_won(zero), hands_lost(zer
 
 	//store the info into the appropriate member variable
 
-	if (isBot) {
-		this->playerName = player_data[zero] + '*';
-	}
-	else {
-		this->playerName = player_data[zero];
-	}
+	this->playerName = player_data[zero];
+	
 
 	this->hands_won = stoi(player_data[one]);
 	this->hands_lost = stoi(player_data[two]);
@@ -110,6 +97,7 @@ Player::Player(char * name) :  playerName(name), hands_won(zero), hands_lost(zer
 		}
 
 	}
+	file.close();
 
 }
 

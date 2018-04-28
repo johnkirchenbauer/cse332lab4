@@ -13,6 +13,8 @@
 #include "FiveCardDraw.h"
 #include "SevenCardStud.h"
 #include <iostream>
+#include <fstream>
+#include <vector>
 
 
 using namespace std;
@@ -114,4 +116,31 @@ shared_ptr<Player> Game::find_player(const string & s) {
 
 	//return a singular pointer if no match is found
 	return shared_ptr<Player>(nullptr); 
+}
+
+void Game::emptyPlayers() {
+	for (vector<shared_ptr<Player>>::iterator it = players.begin(); it != players.end(); ++it) {
+		string name = (*it)->playerName;
+		string numOfWins = to_string((*it)->hands_won);
+		string numOfLosses = to_string((*it)->hands_lost);
+		string chipBalance = to_string((*it)->player_chips);
+
+
+		ofstream newFile(name + ".txt", ofstream::out);
+		if (newFile.is_open()) {
+			newFile << name << " " << numOfWins << " " << numOfLosses << " " << chipBalance;
+		}
+		else {
+			std::cout << "Unable to Open File For This Player: " << name << endl;
+
+		}
+		newFile.close();
+		players.erase(it);
+
+		std::cout << "Player has left the game: " << name << endl;
+
+
+
+
+	}
 }

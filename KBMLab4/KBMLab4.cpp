@@ -16,88 +16,163 @@
 #include "Game.h"
 #include "kbmlab4.h"
 #include <iostream>
+#include <fstream>
 #include <map>
+#include <string>
+#include <sstream>
+#include <vector>
+#include <set>
 #include <algorithm>
 
 using namespace std;
 
 int main(int argc, char * argv[]) {
 
-	//hardcode for debugging
-	argc = 5;
-	argv[1] = "SevenCardStud";
-	argv[2] = "alex";
-	argv[3] = "john";
-	argv[4] = "zach";
+	////hardcode for debugging
+	//argc = 5;
+	//argv[1] = "SevenCardStud";
+	//argv[2] = "alex";
+	//argv[3] = "john";
+	//argv[4] = "zach";
 
 
-	// check the number of arguments from user, need at least 4 and at most 12 with one deck of cards
-	if (argc < four) {
-		program_Usage(BadInput);
-		return BadInput;
+	//// check the number of arguments from user, need at least 4 and at most 12 with one deck of cards
+	if (argc > one) {
+		program_Usage(Usage);
 	}
-	else if (argc > twelve) {
+	/*else if (argc > twelve) {
 		program_Usage(TooFewCards);
 		return TooFewCards;
 	}
-
+*/
 	//initialize the game specified by the user, placed in try/catch block to catch any propogated errors in main
-	try {
+	/*try {
 		Game::start_game(argv[one]);
 	}
 	catch (ErrorCode e) {
 		program_Usage(e);
 		return e;
-	}
+	}*/
 
 	bool gameInProg = true;
-	//start the game and deal cards to players, placed in try/catch block to catch any propogated errors in main
-	try {
-
-		shared_ptr<Game> gamePtr = Game::instance();
-
+	while (gameInProg) {
+		//start the game and deal cards to players, placed in try/catch block to catch any propogated errors in main
 		try {
-			for (int j = 2; j < argc; j++) {
-				gamePtr->add_player(argv[j]);
-			}
-		}
-		catch (ErrorCode e) {
-			program_Usage(e);
+			vector<string> initVector = gamePrompt();
 
-		}
-		//run the game, placed in try/catch block to catch any propogated errors in main
-		while (gameInProg) {
+			Game::start_game(initVector[0]);
+
+			shared_ptr<Game> gamePtr = Game::instance();
 
 			try {
-				gamePtr->betting_zero();
-				gamePtr->before_round();
-				gamePtr->round();
-				gamePtr->after_round();
+				for (int j = one; j < initVector.size(); j++) {
+					gamePtr->add_player(initVector[j]);
+				}
+			}
+			catch (ErrorCode e) {
+				program_Usage(e);
 
 			}
-			catch (ErrorCode) {
-				gameInProg = false;
-				throw;
+			//run the game, placed in try/catch block to catch any propogated errors in main
+
+			try {
+				while(true) {
+					gamePtr->betting_zero();
+					gamePtr->before_round();
+					gamePtr->round();
+					gamePtr->after_round();
+				}
+			}
+			catch (ErrorCode ex) {
+				if (ex != AllPlayersLeft) {
+					gameInProg = false;
+					throw ex;
+				}
+				else {
+					program_Usage(ex);
+					std::cout << "Game finished." << endl;
+					gamePtr->emptyPlayers();
+					Game::stop_game();
+
+					cout << "Would you like to play another game? (yes or no)" << endl;
+					if(!get_response()){
+						throw ex;
+					}
+				}
+			}
+
+			
+
+			
+
+		}
+		// catch any error codes thrown, stop the game, and echo that the game is complete
+		catch (ErrorCode e) {
+			//if the specific error code is everyone left the game, then the game terminated with no errors
+			if (e == AllPlayersLeft) {
+				cout << "Game terminated without error. Goodbye darling <3 " << endl;
+				return e;
+			}
+			// all other caught errors terminates the game and are propogated out to the user
+			else {
+				program_Usage(e);
+				std::cout << "Game terminated with error." << endl;
+				return e;
 			}
 		}
+
 	}
-	// catch any error codes thrown, stop the game, and echo that the game is complete
-	catch (ErrorCode e) {
-		//if the specific error code is everyone left the game, then the game terminated with no errors
-		if (e == AllPlayersLeft) {
-			program_Usage(e);
-			Game::stop_game();
-			std::cout << "Game finished." << endl;
-			return e;
+}
+
+set<string> GameTypes{
+	"FiveCardDraw",
+	"SevenCardStud",
+	"TexasHoldem",
+};
+
+vector<string> gamePrompt() {
+	bool invalidResponse = true;
+	string resp;
+	vector<string> respVector;
+	string word;
+	while (invalidResponse) {
+		
+		cout << "Please enter a GameType followed by the names of players who would like to play. ('GameType' 'player1' 'player2' 'player3' ... )" << endl;
+		getline(cin, resp);
+		istringstream line(resp);
+
+		line >> word;
+		if (GameTypes.find(word) != GameTypes.end()) {
+			respVector.push_back(word);
+			invalidResponse = false;
 		}
-		// all other caught errors terminates the game and are propogated out to the user
 		else {
-			program_Usage(e);
-			Game::stop_game();
-			std::cout << "Game terminated with error." << endl;
-			return e;
+			invalidResponse = true;
+		}
+
+		while (line >> word) {
+			respVector.push_back(word);
+			if (respVector[zero] == "FiveCardDraw") {
+				if (respVector.size() > eleven) {
+					invalidResponse = true;
+				}
+			}
+			else if (respVector[zero] == "SevenCardStud") {
+				if (respVector.size() > eight) {
+					invalidResponse = true;
+				}
+			}
+			else if (respVector[zero] == "TexasHoldem") {
+				if (respVector.size() > twentyfour) {
+					invalidResponse = true;
+				}
+			}
+		}
+		if (invalidResponse) {
+			respVector.clear();
 		}
 	}
+	return respVector;
 }
 
 // function that describes all the possible error codes thrown and caught in main
@@ -182,6 +257,10 @@ int program_Usage(ErrorCode code) {
 	case InvalidName:
 		std::cout << "ErrorCode[InvalidName] : Invalid name entered!" << endl
 			<< "Please enter names consisting only of alpha-numeric characters." << endl;
+		break;
+	case Usage:
+		std::cout << "ErrorCode[Usage] : This program is meant to be run without command line args!" << endl
+			<< "Continuing to game prompt." << endl;
 		break;
 
 	}
