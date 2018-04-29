@@ -20,7 +20,7 @@ using namespace std;
 
 
 
-TexasHoldEm::TexasHoldEm() : dealerPosition(0), pot(0) {
+TexasHoldEm::TexasHoldEm() : dealerPosition(zero), pot(zero) {
 	//arrays used in the constructor to create a standard 52-card deck
 	Card::Suit suitArrSCS[four] = {
 		Card::clubs,
@@ -115,24 +115,19 @@ int TexasHoldEm::before_round() {
 
 int TexasHoldEm::betting_zero() {
 
-	//cout << "Pot: " << pot << endl;
-	for (int i = 0; i < players.size(); i++) {
-		//cout << players[i]->playerName << " ante'd up 1 chip." << endl;
-		//cout << "Chips before: " << players[i]->player_chips << endl;
+	for (int i = zero; i < players.size(); i++) {
+		
 		players[i]->player_chips--;
-		//cout << "Chips after: " << players[i]->player_chips << endl;
-		if (players[i]->player_chips == 0) {
+		
+		if (players[i]->player_chips == zero) {
 			cout << players[i]->playerName << " ante'd up and is all in!" << endl;
 		}
 	}
-	//cout << "Pot before: " << pot << endl;
+	
 	pot += players.size();
-	//cout << "Pot after: " << pot << endl;
 
 	return Success;
 }
-
-//John's updaterooney --------------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 enum BetterTypes {
 	Raise2,
@@ -148,19 +143,19 @@ enum BetterTypes {
 int TexasHoldEm::betting_one() {
 
 	set<int> betterIndices;
-	int callers = 0;
-	for (int i = 0; i < players.size(); i++) {
+	int callers = zero;
+	for (int i = zero; i < players.size(); i++) {
 		if (players[i]->still_betting && !players[i]->all_in) {
 			betterIndices.insert(i);
 		}
 	}
 
-	int maxBet = 0;
+	int maxBet = zero;
 	bool isBet = false;
 
 	BetterTypes playerType;
 	shared_ptr<Player> currPlayer;
-	int i = 0;
+	int i = zero;
 
 	while (callers < betterIndices.size()) {
 
@@ -192,25 +187,23 @@ int TexasHoldEm::betting_one() {
 			}
 			else {
 				cout << "No bet has been made." << endl;
-				(playerChips > 0 ? playerType = Check : playerType = AllIn);
+				(playerChips > zero ? playerType = Check : playerType = AllIn);
 			}
-
-			//cout << currPlayer->playerName << " has " << currPlayer->player_chips << " chips." << endl;
 
 			cout << players[i]->playerName << "'s Cards: " << players[i]->player_cards << endl;
 
-			if (public_cards.size() == 0) {
+			if (public_cards.size() == zero) {
 				cout << "Public Cards: none" << endl;
 			}
 			else {
 				cout << "Public Cards: " << public_cards << endl;
 			}
 
-			for (size_t j = 0; j < players.size(); ++j) {
+			for (size_t j = zero; j < players.size(); ++j) {
 				if (i != j && (players[j]->still_betting || players[j]->all_in)) {
 
 					cout << players[j]->playerName << "'s Cards: ";
-					for (size_t k = 0; k < players[j]->player_cards.size(); ++k) {
+					for (size_t k = zero; k < players[j]->player_cards.size(); ++k) {
 						cout << "* ";
 					}
 					cout << endl;
@@ -232,7 +225,7 @@ int TexasHoldEm::betting_one() {
 					case AllIn:
 						cout << currPlayer->playerName << " is All In for this round!" << endl;
 						betterIndices.erase(i);
-						currPlayer->player_chips = 0;
+						currPlayer->player_chips = zero;
 						pot += currPlayer->player_chips;
 						currPlayer->all_in = true;
 						playerFinished = true;
@@ -244,8 +237,8 @@ int TexasHoldEm::betting_one() {
 							currPlayer->player_chips -= (maxBet - currPlayer->current_bet);
 							pot += (maxBet - currPlayer->current_bet);
 							currPlayer->current_bet = maxBet;
-							if (currPlayer->player_chips >= 2) { playerType = Raise2; }
-							else if (currPlayer->player_chips == 1) { playerType = Raise1; }
+							if (currPlayer->player_chips >= two) { playerType = Raise2; }
+							else if (currPlayer->player_chips == one) { playerType = Raise1; }
 							else { playerType = AllIn; }
 						}
 						else {
@@ -257,11 +250,11 @@ int TexasHoldEm::betting_one() {
 						cout << "Would " << currPlayer->playerName << " like to Raise the bet by one chip? (yes or no)" << endl;
 						if (get_response()) {
 							cout << "Bet raised by one chip!" << endl;
-							maxBet += 1;
+							maxBet += one;
 							currPlayer->player_chips -= (maxBet - currPlayer->current_bet);
 							pot += (maxBet - currPlayer->current_bet);
 							currPlayer->current_bet = maxBet;
-							callers = 0;
+							callers = zero;
 							playerType = AllIn;
 						}
 						else {
@@ -272,24 +265,24 @@ int TexasHoldEm::betting_one() {
 						cout << currPlayer->playerName << " has enough chips to raise the current bet by one or two chips." << endl;
 						cout << "Would " << currPlayer->playerName << " like to Raise the bet by one or two chips? (one, two or no)" << endl;
 						int resp = get_one_two();
-						if (resp == 2) {
+						if (resp == two) {
 							cout << "Bet raised by two chips!" << endl;
-							maxBet += 2;
+							maxBet += two;
 							currPlayer->player_chips -= (maxBet - currPlayer->current_bet);
 							pot += (maxBet - currPlayer->current_bet);
 							currPlayer->current_bet = maxBet;
-							callers = 0;
-							if (currPlayer->player_chips == 0) { playerType = AllIn; }
+							callers = zero;
+							if (currPlayer->player_chips == zero) { playerType = AllIn; }
 							else { playerFinished = true; }
 						}
-						else if (resp == 1) {
+						else if (resp == one) {
 							cout << "Bet raised by one chip!" << endl;
-							maxBet += 1;
+							maxBet += one;
 							currPlayer->player_chips -= (maxBet - currPlayer->current_bet);
 							pot += (maxBet - currPlayer->current_bet);
 							currPlayer->current_bet = maxBet;
-							callers = 0;
-							if (currPlayer->player_chips == 0) { playerType = AllIn; }
+							callers = zero;
+							if (currPlayer->player_chips == zero) { playerType = AllIn; }
 							else { playerFinished = true; }
 						}
 						else {
@@ -315,22 +308,22 @@ int TexasHoldEm::betting_one() {
 						cout << currPlayer->playerName << " is All In for this round!" << endl;
 						betterIndices.erase(i);
 						pot += currPlayer->player_chips;
-						currPlayer->player_chips = 0;
+						currPlayer->player_chips = zero;
 						currPlayer->all_in = true;
 						playerFinished = true;
 						break;
 					case Check:
-						if (currPlayer->player_chips >= 1) {
+						if (currPlayer->player_chips >= one) {
 							cout << currPlayer->playerName << ", would you like to place the first Bet? (yes or no)" << endl;
 							if (get_response()) {
-								if (currPlayer->player_chips > 1) { playerType = Place2; }
-								else if (currPlayer->player_chips == 1) { playerType = Place1; }
+								if (currPlayer->player_chips > one) { playerType = Place2; }
+								else if (currPlayer->player_chips == one) { playerType = Place1; }
 								break;
 							}
 						}
 						cout << currPlayer->playerName << ", would you like to Check?  (yes or no)" << endl;
 						if (get_response()) {
-							if (currPlayer->player_chips == 0) { playerType = AllIn; }
+							if (currPlayer->player_chips == one) { playerType = AllIn; }
 							else { playerFinished = true; }
 						}
 						else {
@@ -341,11 +334,11 @@ int TexasHoldEm::betting_one() {
 						cout << "Would " << currPlayer->playerName << " like to place the initial bet at one chip? (yes or no)" << endl;
 						if (get_response()) {
 							cout << "Starting bet is one chip!" << endl;
-							maxBet += 1;
+							maxBet += one;
 							currPlayer->player_chips -= (maxBet - currPlayer->current_bet);
 							pot += (maxBet - currPlayer->current_bet);
 							currPlayer->current_bet = maxBet;
-							callers = 0;
+							callers = zero;
 							isBet = true;
 							playerType = AllIn;
 						}
@@ -356,26 +349,26 @@ int TexasHoldEm::betting_one() {
 					case Place2:
 						cout << "Would " << currPlayer->playerName << " like to place the initial bet of one or two chips? (one, two, or no)" << endl;
 						int resp = get_one_two();
-						if (resp == 2) {
+						if (resp == two) {
 							cout << "Starting bet is two chips!" << endl;
-							maxBet += 2;
+							maxBet += two;
 							currPlayer->player_chips -= (maxBet - currPlayer->current_bet);
 							pot += (maxBet - currPlayer->current_bet);
 							currPlayer->current_bet = maxBet;
-							callers = 0;
+							callers = zero;
 							isBet = true;
-							if (currPlayer->player_chips == 0) { playerType = AllIn; }
+							if (currPlayer->player_chips == zero) { playerType = AllIn; }
 							else { playerFinished = true; }
 						}
-						else if (resp == 1) {
+						else if (resp == one) {
 							cout << "Starting bet is one chip!" << endl;
-							maxBet += 1;
+							maxBet += one;
 							currPlayer->player_chips -= (maxBet - currPlayer->current_bet);
 							pot += (maxBet - currPlayer->current_bet);
 							currPlayer->current_bet = maxBet;
-							callers = 0;
+							callers = zero;
 							isBet = true;
-							if (currPlayer->player_chips == 0) { playerType = AllIn; }
+							if (currPlayer->player_chips == zero) { playerType = AllIn; }
 							else { playerFinished = true; }
 						}
 						else {
@@ -391,13 +384,11 @@ int TexasHoldEm::betting_one() {
 			}
 		}
 
-		i = (i + 1) % (players.size());
+		i = (i + one) % (players.size());
 	}
 
 	return Success;
 }
-
-//-------------------------------------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 /*Iterates through the players and at each player calling their turn method and then their after_turn method*/
 int TexasHoldEm::round() {
@@ -417,8 +408,8 @@ int TexasHoldEm::round() {
 	}
 
 	betting_one();
-	for (int i = 0; i < players.size(); i++) {
-		players[i]->current_bet = 0;
+	for (int i = zero; i < players.size(); i++) {
+		players[i]->current_bet = zero;
 	}
 
 	//add the 4th public card
@@ -431,8 +422,8 @@ int TexasHoldEm::round() {
 	}
 
 	betting_one();
-	for (int i = 0; i < players.size(); i++) {
-		players[i]->current_bet = 0;
+	for (int i = zero; i < players.size(); i++) {
+		players[i]->current_bet = zero;
 	}
 
 	//add the 5th public card
@@ -444,8 +435,8 @@ int TexasHoldEm::round() {
 	}
 
 	betting_one();
-	for (int i = 0; i < players.size(); i++) {
-		players[i]->current_bet = 0;
+	for (int i = zero; i < players.size(); i++) {
+		players[i]->current_bet = zero;
 	}
 
 	return Success;
@@ -460,11 +451,11 @@ set<vector<size_t>> get_combinations() {
 	vector<size_t> indices;  //the indices of the 5 selected cards
 
 							 //add the indices to the set, and clear the indices each time through
-	for (size_t i = 0; i < 3; ++i) {
-		for (size_t j = i + 1; j < 4; ++j) {
-			for (size_t k = j + 1; k < 5; ++k) {
-				for (size_t m = k + 1; m < 6; ++m) {
-					for (size_t n = m + 1; n < 7; ++n) {
+	for (size_t i = zero; i < three; ++i) {
+		for (size_t j = i + one; j < four; ++j) {
+			for (size_t k = j + one; k < five; ++k) {
+				for (size_t m = k + one; m < six; ++m) {
+					for (size_t n = m + one; n < seven; ++n) {
 						indices.push_back(i);
 						indices.push_back(j);
 						indices.push_back(k);
@@ -487,7 +478,7 @@ set<vector<size_t>> get_combinations() {
 Hand getBestHand(Hand & h) {
 
 
-	int best_hand_score = -1;   //score of the best hand
+	int best_hand_score = negOne;   //score of the best hand
 
 	Hand bestHand;   //the hand that eventually gets returned.
 	Hand temp;       //temporary variable to store intermediate hands
@@ -496,10 +487,8 @@ Hand getBestHand(Hand & h) {
 
 														  //add the cards at the appropriate indices to temp, compare temp to the current best hand, and replace if necessary
 	for (set<vector<size_t>>::iterator it = combos.begin(); it != combos.end(); ++it) {
-		for (size_t i = 0; i < (*it).size(); ++i) {
+		for (size_t i = zero; i < (*it).size(); ++i) {
 			size_t index = (*it)[i];
-			//cout << "Index: " << index << endl;
-			//cout << "Player cards: " << h.getCards() << endl;
 			temp.getCards().push_back(h.getCards()[index]);
 		}
 
@@ -510,13 +499,6 @@ Hand getBestHand(Hand & h) {
 			best_hand_score = tempRank;
 			bestHand = temp;
 		}
-
-		//if both are equal, call poker rank to determine the better hand
-		//if (tempRank == best_hand_score) {
-		//	if (poker_rank(temp, bestHand)) {
-		//		bestHand = temp;
-		//	}
-		//}
 
 		temp.clear_hand();  //clear the temp hand
 	}
@@ -533,23 +515,17 @@ int TexasHoldEm::after_round() {
 	//make copy so we don't mess with deal order
 	vector<shared_ptr<Player>> copyOfPlayers = players;
 
-
-
-
 	//choose the best hand for each player
-	for (size_t i = 0; i < copyOfPlayers.size(); ++i) {
-		for (size_t j = 0; j < public_cards.size(); ++j) {
+	for (size_t i = zero; i < copyOfPlayers.size(); ++i) {
+		for (size_t j = zero; j < public_cards.size(); ++j) {
 			copyOfPlayers[i]->player_cards.add_card(public_cards[j]);
 		}
 
-		if (copyOfPlayers[i]->player_cards.size() == 7) {
+		if (copyOfPlayers[i]->player_cards.size() == seven) {
 			Hand bestHand = getBestHand(copyOfPlayers[i]->player_cards);
 			copyOfPlayers[i]->player_cards.clear_hand();
 			copyOfPlayers[i]->player_cards = bestHand;
 		}
-
-
-
 	}
 
 	//sort the hands based on their poker rank
@@ -580,18 +556,17 @@ int TexasHoldEm::after_round() {
 	vector<string> stringsReceived;  //names of players that will be removed
 
 
-									 //increment score for winner, decrement score for losers
-	for (size_t i = 0; i < copyOfPlayers.size(); i++) {
+	//increment score for winner, decrement score for losers
+	for (size_t i = zero; i < copyOfPlayers.size(); i++) {
 		if (copyOfPlayers[i]->all_in || copyOfPlayers[i]->still_betting) {
-			if (!poker_rank(copyOfPlayers[0]->player_cards, copyOfPlayers[i]->player_cards)) {
-				//block not still betting
-				//if (copyOfPlayers[i]->still_betting == true || players[i]->all_in == true) {
+			if (!poker_rank(copyOfPlayers[zero]->player_cards, copyOfPlayers[i]->player_cards)) {
+				
 				std::cout << "Winner: " << copyOfPlayers[i]->playerName << endl;
 				copyOfPlayers[i]->hands_won++;
 				copyOfPlayers[i]->player_chips += pot;
 				cout << "Pot size: " << pot << endl;
-				pot = 0;
-				//}
+				pot = zero;
+				
 			}
 
 			else {
@@ -623,7 +598,7 @@ int TexasHoldEm::after_round() {
 
 	//transfer the cards from the player hands back to the deck
 	for (size_t i = zero; i < copyOfPlayers.size(); i++) {
-		for (int j = copyOfPlayers[i]->player_cards.size() - 1; j >= zero; j--) {
+		for (int j = copyOfPlayers[i]->player_cards.size() - one; j >= zero; j--) {
 
 			size_t k = j;
 
@@ -656,10 +631,10 @@ int TexasHoldEm::after_round() {
 	std::cout << "Round finished!" << endl;
 
 	//reset all betting fields
-	for (int i = 0; i < players.size(); i++) {
+	for (int i = zero; i < players.size(); i++) {
 		players[i]->still_betting = true;
 		players[i]->all_in = false;
-		players[i]->current_bet = 0;
+		players[i]->current_bet = zero;
 	}
 
 	string input;
@@ -667,15 +642,12 @@ int TexasHoldEm::after_round() {
 	bool removalFinished = false;    //true if removing players step is complete
 	bool additionFinished = false;   //true if adding players step is complete
 
-									 //vector<string> stringsReceived;  //stores the user's response word-by-word
-
-
-									 //check chip counts and reup or boot players
-	for (int i = 0; i < players.size(); i++) {
-		if (players[i]->player_chips <= 0) {
+	//check chip counts and reup or boot players
+	for (int i = zero; i < players.size(); i++) {
+		if (players[i]->player_chips <= zero) {
 			cout << "Player: " << players[i]->playerName << " does not have enough chips to continue playing. Would they like to add more chips? (yes or no)" << endl;
 			if (get_response()) {
-				players[i]->player_chips = 20;
+				players[i]->player_chips = twenty;
 				cout << "Player: " << players[i]->playerName << "'s chips generously re-upped to 20!" << endl;
 			}
 			else {
@@ -782,6 +754,7 @@ int TexasHoldEm::after_round() {
 			throw AllPlayersLeft;
 		}
 		if (players.size() < two) {
+			cout << "Hit too few playerer ex" << endl;
 			throw TooFewPlayers;
 		}
 	}

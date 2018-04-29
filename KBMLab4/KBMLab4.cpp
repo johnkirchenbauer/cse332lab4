@@ -28,31 +28,10 @@ using namespace std;
 
 int main(int argc, char * argv[]) {
 
-	////hardcode for debugging
-	//argc = 5;
-	//argv[1] = "SevenCardStud";
-	//argv[2] = "alex";
-	//argv[3] = "john";
-	//argv[4] = "zach";
-
-
-	//// check the number of arguments from user, need at least 4 and at most 12 with one deck of cards
+	// check the number of arguments from user, need at least 4 and at most 12 with one deck of cards
 	if (argc > one) {
 		program_Usage(Usage);
 	}
-	/*else if (argc > twelve) {
-		program_Usage(TooFewCards);
-		return TooFewCards;
-	}
-*/
-	//initialize the game specified by the user, placed in try/catch block to catch any propogated errors in main
-	/*try {
-		Game::start_game(argv[one]);
-	}
-	catch (ErrorCode e) {
-		program_Usage(e);
-		return e;
-	}*/
 
 	bool gameInProg = true;
 	while (gameInProg) {
@@ -84,20 +63,21 @@ int main(int argc, char * argv[]) {
 				}
 			}
 			catch (ErrorCode ex) {
-				if (ex != AllPlayersLeft) {
-					gameInProg = false;
-					throw ex;
-				}
-				else {
+				if ((ex == AllPlayersLeft) || (ex == TooFewPlayers)) {
+
 					program_Usage(ex);
 					std::cout << "Game finished." << endl;
 					gamePtr->emptyPlayers();
 					Game::stop_game();
 
 					cout << "Would you like to play another game? (yes or no)" << endl;
-					if(!get_response()){
+					if (!get_response()) {
 						throw ex;
 					}
+				}
+				else {
+					gameInProg = false;
+					throw ex;
 				}
 			}
 
@@ -109,7 +89,7 @@ int main(int argc, char * argv[]) {
 		// catch any error codes thrown, stop the game, and echo that the game is complete
 		catch (ErrorCode e) {
 			//if the specific error code is everyone left the game, then the game terminated with no errors
-			if (e == AllPlayersLeft) {
+			if (e == AllPlayersLeft || e == TooFewPlayers) {
 				cout << "Game terminated without error. Goodbye darling <3 " << endl;
 				return e;
 			}
@@ -184,70 +164,66 @@ int program_Usage(ErrorCode code) {
 		break;
 	case BadInput:
 		std::cout << endl << "ErrorCode[BadInput] : Incorrect number of inputs!" << endl
-			<< "lab2.exe [GameType] [player names ... ]" << endl
-			<< "Run this program with a single GameType argument" << endl
+			<< "lab4.exe [GameType] [player names ... ]" << endl
+			<< "Run this program without cmd line args" << endl
 			<< "Followed by a list of players, minimum two, to add to the game sep. by whitespace." << endl
 			<< "ErrorCodes[0:Success, 1:BadInput,  2:FileNotOpen 3:TooFewPlayers, 4:TooFewCards," << endl
-			<< "5:InstanceNotAvailable, 6:GameAlreadyStarted, 7:NoGameInProgress, 8:PlayerAlreadyPlaying, 9:UnknownGame]" << endl << endl;
+			<< "5:InstanceNotAvailable, 6:GameAlreadyStarted, 7:NoGameInProgress, 8:PlayerAlreadyPlaying," << endl
+			<< "9:UnknownGame, 10:AllPlayersLeft, 11:InvalidName, 12:Usage]" << endl << endl;
 		break;
 	case FileNotOpen:
 		std::cout << endl << "ErrorCode[FileNotOpen] : Found corrupt file when reading in player history!" << endl
-			<< "lab2.exe [GameType] [player names ... ]" << endl
-			<< "Run this program with a single GameType argument" << endl
+			<< "Run this program without cmd line args." << endl
 			<< "Followed by a list of players, minimum two, to add to the game sep. by whitespace." << endl
 			<< "ErrorCodes[0:Success, 1:BadInput,  2:FileNotOpen 3:TooFewPlayers, 4:TooFewCards," << endl
-			<< "5:InstanceNotAvailable, 6:GameAlreadyStarted, 7:NoGameInProgress, 8:PlayerAlreadyPlaying, 9:UnknownGame]" << endl << endl;
+			<< "5:InstanceNotAvailable, 6:GameAlreadyStarted, 7:NoGameInProgress, 8:PlayerAlreadyPlaying," << endl
+			<< "9:UnknownGame, 10:AllPlayersLeft, 11:InvalidName, 12:Usage]" << endl << endl;
 		break;
 	case TooFewPlayers:
-		std::cout << endl << "ErrorCode[NotEnoughPlayers] : Too few players to continue game!" << endl
-			<< "lab2.exe [GameType] [player names ... ]" << endl
-			<< "Run this program with a single GameType argument" << endl
-			<< "Followed by a list of players, minimum two, to add to the game sep. by whitespace." << endl
-			<< "ErrorCodes[0:Success, 1:BadInput,  2:FileNotOpen 3:TooFewPlayers, 4:TooFewCards," << endl
-			<< "5:InstanceNotAvailable, 6:GameAlreadyStarted, 7:NoGameInProgress, 8:PlayerAlreadyPlaying, 9:UnknownGame]" << endl << endl;
+		std::cout << endl << "ErrorCode[TooFewPlayers] : Too few players to continue game!" << endl << endl;
 		break;
 	case TooFewCards:
 		std::cout << endl << "ErrorCode[TooFewCards] : Too few cards for this many players to play game!" << endl
-			<< "lab2.exe [GameType] [player names ... ]" << endl
-			<< "Run this program with a single GameType argument" << endl
+			<< "Run this program without cmd line args." << endl
 			<< "Followed by a list of players, minimum two, to add to the game sep. by whitespace." << endl
 			<< "ErrorCodes[0:Success, 1:BadInput,  2:FileNotOpen 3:TooFewPlayers, 4:TooFewCards," << endl
-			<< "5:InstanceNotAvailable, 6:GameAlreadyStarted, 7:NoGameInProgress, 8:PlayerAlreadyPlaying, 9:UnknownGame]" << endl << endl;
+			<< "5:InstanceNotAvailable, 6:GameAlreadyStarted, 7:NoGameInProgress, 8:PlayerAlreadyPlaying," << endl
+			<< "9:UnknownGame, 10:AllPlayersLeft, 11:InvalidName, 12:Usage]" << endl << endl;
 		break;
 	case InstanceNotAvailable:
 		std::cout << endl << "ErrorCode[InstanceNotAvailable] : Issue initializing game!" << endl
-			<< "lab2.exe [GameType] [player names ... ]" << endl
-			<< "Run this program with a single GameType argument" << endl
+			<< "Run this program without cmd line args." << endl
 			<< "Followed by a list of players, minimum two, to add to the game sep. by whitespace." << endl
 			<< "ErrorCodes[0:Success, 1:BadInput,  2:FileNotOpen 3:TooFewPlayers, 4:TooFewCards," << endl
-			<< "5:InstanceNotAvailable, 6:GameAlreadyStarted, 7:NoGameInProgress, 8:PlayerAlreadyPlaying, 9:UnknownGame]" << endl << endl;
+			<< "5:InstanceNotAvailable, 6:GameAlreadyStarted, 7:NoGameInProgress, 8:PlayerAlreadyPlaying," << endl
+			<< "9:UnknownGame, 10:AllPlayersLeft, 11:InvalidName, 12:Usage]" << endl << endl;
 		break;
 	case GameAlreadyStarted:
 		std::cout << endl << "ErrorCode[GameAlreadyStarted] : Cannot start game, game already in progress!" << endl
-			<< "lab2.exe [GameType] [player names ... ]" << endl
-			<< "Run this program with a single GameType argument" << endl
+			<< "Run this program without cmd line args." << endl
 			<< "Followed by a list of players, minimum two, to add to the game sep. by whitespace." << endl
 			<< "ErrorCodes[0:Success, 1:BadInput,  2:FileNotOpen 3:TooFewPlayers, 4:TooFewCards," << endl
-			<< "5:InstanceNotAvailable, 6:GameAlreadyStarted, 7:NoGameInProgress, 8:PlayerAlreadyPlaying, 9:UnknownGame]" << endl << endl;
+			<< "5:InstanceNotAvailable, 6:GameAlreadyStarted, 7:NoGameInProgress, 8:PlayerAlreadyPlaying," << endl
+			<< "9:UnknownGame, 10:AllPlayersLeft, 11:InvalidName, 12:Usage]" << endl << endl;
 		break;
 	case NoGameInProgress:
 		std::cout << endl << "ErrorCode[NoGameInProgress] : Cannot stop game, no game in progress!" << endl
-			<< "lab2.exe [GameType] [player names ... ]" << endl
-			<< "Run this program with a single GameType argument" << endl
+			<< "Run this program without cmd line args." << endl
 			<< "Followed by a list of players, minimum two, to add to the game sep. by whitespace." << endl
 			<< "ErrorCodes[0:Success, 1:BadInput,  2:FileNotOpen 3:TooFewPlayers, 4:TooFewCards," << endl
-			<< "5:InstanceNotAvailable, 6:GameAlreadyStarted, 7:NoGameInProgress, 8:PlayerAlreadyPlaying, 9:UnknownGame]" << endl << endl;
+			<< "5:InstanceNotAvailable, 6:GameAlreadyStarted, 7:NoGameInProgress, 8:PlayerAlreadyPlaying," << endl
+			<< "9:UnknownGame, 10:AllPlayersLeft, 11:InvalidName, 12:Usage]" << endl << endl;
 		break;
 	case PlayerAlreadyPlaying:
 		std::cout << endl << "ErrorCode[PlayerAlreadyPlaying] : Cannot add player to game, player already playing!" << endl;
 		break;
 	case UnknownGame:
 		std::cout << endl << "ErrorCode[UnknownGame] : Unknown game type entered!" << endl
-			<< "lab2.exe [GameType] [player names ... ]" << endl
-			<< "Run this program with a single GameType argument" << endl
+			<< "Run this program without cmd line args." << endl
 			<< "Followed by a list of players, minimum two, to add to the game sep. by whitespace." << endl
 			<< "ErrorCodes[0:Success, 1:BadInput,  2:FileNotOpen 3:TooFewPlayers, 4:TooFewCards," << endl
-			<< "5:InstanceNotAvailable, 6:GameAlreadyStarted, 7:NoGameInProgress, 8:PlayerAlreadyPlaying, 9:UnknownGame]" << endl << endl;
+			<< "5:InstanceNotAvailable, 6:GameAlreadyStarted, 7:NoGameInProgress, 8:PlayerAlreadyPlaying," << endl
+			<< "9:UnknownGame, 10:AllPlayersLeft, 11:InvalidName, 12:Usage]" << endl << endl;
 		break;
 	case AllPlayersLeft:
 		std::cout << endl << "All players left the game." << endl

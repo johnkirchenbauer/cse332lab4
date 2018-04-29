@@ -20,7 +20,7 @@
 using namespace std;
 
 /*Constructor that initializes a Player's name member variable, and initializes its wins and losses member variables*/
-Player::Player(char * name) :  playerName(name), hands_won(zero), hands_lost(zero), player_cards(),faceup_cards(), facedown_cards(), player_chips(twenty),still_betting(true),current_bet(0),all_in(false) {
+Player::Player(char * name) :  playerName(name), hands_won(zero), hands_lost(zero), player_cards(),faceup_cards(), facedown_cards(), player_chips(twenty),still_betting(true),current_bet(zero),all_in(false) {
 	
 
 	if (string(name) == "no" || string(name) == "No" ) {
@@ -28,7 +28,7 @@ Player::Player(char * name) :  playerName(name), hands_won(zero), hands_lost(zer
 	}
 
 	//check non-alphanumeric characters
-	for (int i = 0; i < strlen(name); i++)
+	for (int i = zero; i < strlen(name); i++)
 	{
 		if (!isalnum(name[i])) {
 			throw InvalidName;
@@ -70,7 +70,7 @@ Player::Player(char * name) :  playerName(name), hands_won(zero), hands_lost(zer
 
 	int curr_chips = stoi(player_data[three]);
 
-	if (curr_chips > 0) {
+	if (curr_chips > zero) {
 		this->player_chips = curr_chips;
 	}
 	else {
@@ -82,7 +82,7 @@ Player::Player(char * name) :  playerName(name), hands_won(zero), hands_lost(zer
 			getline(cin, ans);
 
 			if (ans == "yes") {
-				this->player_chips = 20;
+				this->player_chips = twenty;
 				validResponse = true;
 			}
 			else if (ans == "no") {

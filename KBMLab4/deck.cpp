@@ -10,6 +10,7 @@
 
 #include "stdafx.h"
 #include "deck.h"
+#include "Game.h"
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -21,8 +22,6 @@
 
 using namespace std;
 
-const int success = 0;  //value returned if a function doesn't run into any errors
-const int zero = 0;
 
 //These 2 maps are used by the output stream insertion operator.  The integer values for the suit and rank are mapped to the appropriate strings
 map<int, string> rankMap = {

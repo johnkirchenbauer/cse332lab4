@@ -40,7 +40,7 @@ Card::Rank rankArrSCS[thirteen] = {
 	Card::ace
 };
 
-SevenCardStud::SevenCardStud() : dealerPosition(0), pot(0) {
+SevenCardStud::SevenCardStud() : dealerPosition(zero), pot(zero) {
 
 	//create the 52 cards and add them to the deck
 	for (int s = zero; s < four; s++) {
@@ -58,7 +58,7 @@ int SevenCardStud::before_turn(Player & player) {
 /*This method deals cards to players who have less than 5 cards.*/
 int SevenCardStud::turn(Player & p) {
 
-	if (p.player_cards.size() == 6) {
+	if (p.player_cards.size() == six) {
 		//if neither deck has enough cards, throw an exception, otherwise move the card from the deck to the player's hand
 		if (mainDeck.size() <= zero) {
 
@@ -129,7 +129,7 @@ int SevenCardStud::before_round() {
 	for (size_t numCards = zero; numCards < three; numCards++) {
 		for (size_t i = one; i <= numPlayers; ++i) {
 			dealIndex = (dealerPosition + i) % numPlayers;
-			if (numCards == 2) {
+			if (numCards == two) {
 				add_card(players[dealIndex]->faceup_cards, players[dealIndex]->player_cards, mainDeck);
 				//players[dealIndex]->faceup_cards << mainDeck;
 			}
@@ -156,24 +156,19 @@ int SevenCardStud::before_round() {
 
 int SevenCardStud::betting_zero() {
 
-	//cout << "Pot: " << pot << endl;
-	for (int i = 0; i < players.size(); i++) {
-		//cout << players[i]->playerName << " ante'd up 1 chip." << endl;
-		//cout << "Chips before: " << players[i]->player_chips << endl;
+	for (int i = zero; i < players.size(); i++) {
+	
 		players[i]->player_chips--;
-		//cout << "Chips after: " << players[i]->player_chips << endl;
-		if (players[i]->player_chips == 0) {
+		
+		if (players[i]->player_chips == zero) {
 			cout << players[i]->playerName << " ante'd up and is all in!" << endl;
 		}
 	}
-	//cout << "Pot before: " << pot << endl;
+	
 	pot += players.size();
-	//cout << "Pot after: " << pot << endl;
-
+	
 	return Success;
 }
-
-//John's updaterooney --------------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 enum BetterTypes {
 	Raise2,
@@ -189,19 +184,19 @@ enum BetterTypes {
 int SevenCardStud::betting_one() {
 
 	set<int> betterIndices;
-	int callers = 0;
-	for (int i = 0; i < players.size(); i++) {
+	int callers = zero;
+	for (int i = zero; i < players.size(); i++) {
 		if (players[i]->still_betting && !players[i]->all_in) {
 			betterIndices.insert(i);
 		}
 	}
 
-	int maxBet = 0;
+	int maxBet = zero;
 	bool isBet = false;
 
 	BetterTypes playerType;
 	shared_ptr<Player> currPlayer;
-	int i = 0;
+	int i = zero;
 
 	while (callers < betterIndices.size()) {
 
@@ -235,19 +230,16 @@ int SevenCardStud::betting_one() {
 			}
 			else {
 				cout << "No bet has been made." << endl;
-				(playerChips > 0 ? playerType = Check : playerType = AllIn);
+				(playerChips > zero ? playerType = Check : playerType = AllIn);
 			}
 
-			//cout << currPlayer->playerName << " has " << currPlayer->player_chips << " chips." << endl;
-
 			cout << players[i]->playerName << "'s Cards: " << players[i]->player_cards << endl;
-
 			
-			for (size_t j = 0; j < players.size(); ++j) {
+			for (size_t j = zero; j < players.size(); ++j) {
 				if (i != j && (players[j]->still_betting || players[j]->all_in)) {
 					cout << players[j]->playerName << "'s Cards: ";
 
-					for (size_t k = 0; k < players[j]->facedown_cards.size(); ++k) {
+					for (size_t k = zero; k < players[j]->facedown_cards.size(); ++k) {
 						cout << "* ";
 					}
 
@@ -270,7 +262,7 @@ int SevenCardStud::betting_one() {
 					case AllIn:
 						cout << currPlayer->playerName << " is All In for this round!" << endl;
 						betterIndices.erase(i);
-						currPlayer->player_chips = 0;
+						currPlayer->player_chips = zero;
 						pot += currPlayer->player_chips;
 						currPlayer->all_in = true;
 						playerFinished = true;
@@ -282,8 +274,8 @@ int SevenCardStud::betting_one() {
 							currPlayer->player_chips -= (maxBet - currPlayer->current_bet);
 							pot += (maxBet - currPlayer->current_bet);
 							currPlayer->current_bet = maxBet;
-							if (currPlayer->player_chips >= 2) { playerType = Raise2; }
-							else if (currPlayer->player_chips == 1) { playerType = Raise1; }
+							if (currPlayer->player_chips >= two) { playerType = Raise2; }
+							else if (currPlayer->player_chips == one) { playerType = Raise1; }
 							else { playerType = AllIn; }
 						}
 						else {
@@ -295,11 +287,11 @@ int SevenCardStud::betting_one() {
 						cout << "Would " << currPlayer->playerName << " like to Raise the bet by one chip? (yes or no)" << endl;
 						if (get_response()) {
 							cout << "Bet raised by one chip!" << endl;
-							maxBet += 1;
+							maxBet += one;
 							currPlayer->player_chips -= (maxBet - currPlayer->current_bet);
 							pot += (maxBet - currPlayer->current_bet);
 							currPlayer->current_bet = maxBet;
-							callers = 0;
+							callers = zero;
 							playerType = AllIn;
 						}
 						else {
@@ -310,24 +302,24 @@ int SevenCardStud::betting_one() {
 						cout << currPlayer->playerName << " has enough chips to raise the current bet by one or two chips." << endl;
 						cout << "Would " << currPlayer->playerName << " like to Raise the bet by one or two chips? (one, two or no)" << endl;
 						int resp = get_one_two();
-						if (resp == 2) {
+						if (resp == two) {
 							cout << "Bet raised by two chips!" << endl;
-							maxBet += 2;
+							maxBet += two;
 							currPlayer->player_chips -= (maxBet - currPlayer->current_bet);
 							pot += (maxBet - currPlayer->current_bet);
 							currPlayer->current_bet = maxBet;
-							callers = 0;
-							if (currPlayer->player_chips == 0) { playerType = AllIn; }
+							callers = zero;
+							if (currPlayer->player_chips == zero) { playerType = AllIn; }
 							else { playerFinished = true; }
 						}
-						else if (resp == 1) {
+						else if (resp == one) {
 							cout << "Bet raised by one chip!" << endl;
-							maxBet += 1;
+							maxBet += one;
 							currPlayer->player_chips -= (maxBet - currPlayer->current_bet);
 							pot += (maxBet - currPlayer->current_bet);
 							currPlayer->current_bet = maxBet;
-							callers = 0;
-							if (currPlayer->player_chips == 0) { playerType = AllIn; }
+							callers = zero;
+							if (currPlayer->player_chips == zero) { playerType = AllIn; }
 							else { playerFinished = true; }
 						}
 						else {
@@ -353,22 +345,22 @@ int SevenCardStud::betting_one() {
 						cout << currPlayer->playerName << " is All In for this round!" << endl;
 						betterIndices.erase(i);
 						pot += currPlayer->player_chips;
-						currPlayer->player_chips = 0;
+						currPlayer->player_chips = zero;
 						currPlayer->all_in = true;
 						playerFinished = true;
 						break;
 					case Check:
-						if (currPlayer->player_chips >= 1) {
+						if (currPlayer->player_chips >= one) {
 							cout << currPlayer->playerName << ", would you like to place the first Bet? (yes or no)" << endl;
 							if (get_response()) {
-								if (currPlayer->player_chips > 1) { playerType = Place2; }
-								else if (currPlayer->player_chips == 1) { playerType = Place1; }
+								if (currPlayer->player_chips > one) { playerType = Place2; }
+								else if (currPlayer->player_chips == one) { playerType = Place1; }
 								break;
 							}
 						}
 						cout << currPlayer->playerName << ", would you like to Check?  (yes or no)" << endl;
 						if (get_response()) {
-							if (currPlayer->player_chips == 0) { playerType = AllIn; }
+							if (currPlayer->player_chips == zero) { playerType = AllIn; }
 							else { playerFinished = true; }
 						}
 						else {
@@ -379,11 +371,11 @@ int SevenCardStud::betting_one() {
 						cout << "Would " << currPlayer->playerName << " like to place the initial bet at one chip? (yes or no)" << endl;
 						if (get_response()) {
 							cout << "Starting bet is one chip!" << endl;
-							maxBet += 1;
+							maxBet += one;
 							currPlayer->player_chips -= (maxBet - currPlayer->current_bet);
 							pot += (maxBet - currPlayer->current_bet);
 							currPlayer->current_bet = maxBet;
-							callers = 0;
+							callers = zero;
 							isBet = true;
 							playerType = AllIn;
 						}
@@ -394,26 +386,26 @@ int SevenCardStud::betting_one() {
 					case Place2:
 						cout << "Would " << currPlayer->playerName << " like to place the initial bet of one or two chips? (one, two, or no)" << endl;
 						int resp = get_one_two();
-						if (resp == 2) {
+						if (resp == two) {
 							cout << "Starting bet is two chips!" << endl;
-							maxBet += 2;
+							maxBet += two;
 							currPlayer->player_chips -= (maxBet - currPlayer->current_bet);
 							pot += (maxBet - currPlayer->current_bet);
 							currPlayer->current_bet = maxBet;
-							callers = 0;
+							callers = zero;
 							isBet = true;
-							if (currPlayer->player_chips == 0) { playerType = AllIn; }
+							if (currPlayer->player_chips == zero) { playerType = AllIn; }
 							else { playerFinished = true; }
 						}
-						else if (resp == 1) {
+						else if (resp == one) {
 							cout << "Starting bet is one chip!" << endl;
-							maxBet += 1;
+							maxBet += one;
 							currPlayer->player_chips -= (maxBet - currPlayer->current_bet);
 							pot += (maxBet - currPlayer->current_bet);
 							currPlayer->current_bet = maxBet;
-							callers = 0;
+							callers = zero;
 							isBet = true;
-							if (currPlayer->player_chips == 0) { playerType = AllIn; }
+							if (currPlayer->player_chips == zero) { playerType = AllIn; }
 							else { playerFinished = true; }
 						}
 						else {
@@ -429,7 +421,7 @@ int SevenCardStud::betting_one() {
 			}
 		}
 
-		i = (i + 1) % (players.size());
+		i = (i + one) % (players.size());
 	}
 
 	return Success;
@@ -444,14 +436,14 @@ int SevenCardStud::round() {
 	size_t numPlayers = players.size();
 
 	//call turn and after_turn methods for each player
-	for (size_t betRound = 0; betRound < 4; ++betRound) {
+	for (size_t betRound = zero; betRound < four; ++betRound) {
 		for (size_t i = one; i <= numPlayers; ++i) {
 			turnIndex = (dealerPosition + i) % numPlayers;
 
 			if (players[turnIndex]->still_betting || players[turnIndex]->all_in) {
 				int turnResult = turn(*players[turnIndex]);
 
-				if (turnResult != 0) {
+				if (turnResult != zero) {
 					return Failure;
 				}
 
@@ -461,8 +453,8 @@ int SevenCardStud::round() {
 		}
 
 		//reset current bet amount to 0
-		for (int i = 0; i < players.size(); i++) {
-			players[i]->current_bet = 0;
+		for (int i = zero; i < players.size(); i++) {
+			players[i]->current_bet = zero;
 		}
 
 		cout << endl;
@@ -475,12 +467,12 @@ int SevenCardStud::round() {
 	for (size_t i = zero; i < numPlayers; ++i) {
 		int afterTurnResult = after_turn(*players[i]);
 
-		if (afterTurnResult != 0) {
+		if (afterTurnResult != zero) {
 			return Failure;
 		}
 	}
 
-	cout << "after_turn success" << endl;
+
 	return Success;
 }
 
@@ -492,11 +484,11 @@ set<vector<size_t>> get_all_combinations() {
 	vector<size_t> indices;  //the indices of the 5 selected cards
 
 	//add the indices to the set, and clear the indices each time through
-	for (size_t i = 0; i < 3; ++i) {
-		for (size_t j = i+1; j < 4; ++j) {
-			for (size_t k = j+1; k < 5; ++k) {
-				for (size_t m = k+1; m < 6; ++m) {
-					for (size_t n = m+1; n < 7; ++n) {
+	for (size_t i = zero; i < three; ++i) {
+		for (size_t j = i+one; j < four; ++j) {
+			for (size_t k = j+one; k < five; ++k) {
+				for (size_t m = k+one; m < six; ++m) {
+					for (size_t n = m+one; n < seven; ++n) {
 						indices.push_back(i);
 						indices.push_back(j);
 						indices.push_back(k);
@@ -517,25 +509,8 @@ set<vector<size_t>> get_all_combinations() {
 
 /*Returns the best 5-card hand from the 7 cards in the hand*/
 Hand get_best_hand(Hand & h) {
-	/*if (h.size() != 7) {
-		cout << "invalid hand length" << endl;
-		vector<Card> dummy;
-		Card c1 = { Card::spades, Card::two };
-		Card c2 = { Card::spades, Card::three };
-		Card c3 = { Card::spades, Card::four };
-		Card c4 = { Card::spades, Card::five };
-		Card c5 = { Card::hearts, Card::seven };
-		dummy.push_back(c1);
-		dummy.push_back(c2);
-		dummy.push_back(c3);
-		dummy.push_back(c4);
-		dummy.push_back(c5);
-		sort(dummy.begin(), dummy.end());
-
-		return Hand(dummy);
-	}*/
-
-	int best_hand_score = -1;   //score of the best hand
+	
+	int best_hand_score = negOne;   //score of the best hand
 
 	Hand bestHand;   //the hand that eventually gets returned.
 	Hand temp;       //temporary variable to store intermediate hands
@@ -544,34 +519,22 @@ Hand get_best_hand(Hand & h) {
 	
 	//add the cards at the appropriate indices to temp, compare temp to the current best hand, and replace if necessary
 	for (set<vector<size_t>>::iterator it = combos.begin(); it != combos.end(); ++it) {
-		for (size_t i = 0; i < (*it).size(); ++i) {
+		for (size_t i = zero; i < (*it).size(); ++i) {
 			size_t index = (*it)[i];
-			//cout << "Index: " << index << endl;
-			//cout << "Player cards: " << h.getCards() << endl;
 			temp.getCards().push_back(h.getCards()[index]);
 		}
-		cout << "yay" << endl;
 
 		int tempRank = getHandRank(temp.getCards());  //rank of the temp hand
-		cout << "yay2" << endl;
+		
 		//if the temp hand is better, update bestHand
 		if (tempRank > best_hand_score) {
 			best_hand_score = tempRank;
 			bestHand = temp;
 		}
 
-		//if both are equal, call poker rank to determine the better hand
-		//if (tempRank == best_hand_score) {
-		//	if (poker_rank(temp, bestHand)) {
-		//		bestHand = temp;
-		//	}
-		//}
-		cout << "yay3" << endl;
-
 		temp.clear_hand();  //clear the temp hand
 	}
 
-	cout << "yay4" << endl;
 	return bestHand;
 
 }
@@ -581,23 +544,12 @@ Hand get_best_hand(Hand & h) {
 */
 int SevenCardStud::after_round() {
 
-	/*for (int k = 0; k < players.size(); k++) {
-	cout << "players[k]," <<players[k]->playerName << " still betting = " << players[k]->still_betting << endl;
-	cout << "players[k]," << players[k]->playerName << " all in = " << players[k]->all_in << endl;
-	}*/
-
 	//make copy so we don't mess with deal order
 	vector<shared_ptr<Player>> copyOfPlayers = players;
 
-	/*for (int k = 0; k < copyOfPlayers.size(); k++) {
-	cout << "Copy of players[k]," << copyOfPlayers[k]->playerName << " still betting = " << copyOfPlayers[k]->still_betting << endl;
-	cout << "Copy of players[k]," << copyOfPlayers[k]->playerName << " all in = " << copyOfPlayers[k]->all_in << endl;
-	}*/
-
-
 	//choose the best hand for each player
-	for (size_t i = 0; i < copyOfPlayers.size(); ++i) {
-		if (copyOfPlayers[i]->player_cards.size() == 7) {
+	for (size_t i = zero; i < copyOfPlayers.size(); ++i) {
+		if (copyOfPlayers[i]->player_cards.size() == seven) {
 			Hand bestHand = get_best_hand(copyOfPlayers[i]->player_cards);
 			copyOfPlayers[i]->player_cards.clear_hand();
 			copyOfPlayers[i]->player_cards = bestHand;
@@ -606,9 +558,6 @@ int SevenCardStud::after_round() {
 		
 
 	}
-
-	cout << "yay5" << endl;
-
 
 	//sort the hands based on their poker rank
 	sort(copyOfPlayers.begin(), copyOfPlayers.end(), [](shared_ptr<Player> p1, shared_ptr<Player> p2) {
@@ -635,30 +584,18 @@ int SevenCardStud::after_round() {
 
 	});
 	std::cout << endl;
-	cout << "sort poker hand succes" << endl;
 	vector<string> stringsReceived;  //names of players that will be removed
 
-
-	//int j = 0;
-	//while (j < copyOfPlayers.size()) {
-	//	if (copyOfPlayers[j]->still_betting == true || copyOfPlayers[j]->all_in == true) {
-	//		break;
-	//	}
-	//	j++;
-	//}
-
 	//increment score for winner, decrement score for losers
-	for (size_t i = 0; i < copyOfPlayers.size(); i++) {
+	for (size_t i = zero; i < copyOfPlayers.size(); i++) {
 		if (copyOfPlayers[i]->all_in || copyOfPlayers[i]->still_betting) {
-			if (!poker_rank(copyOfPlayers[0]->player_cards, copyOfPlayers[i]->player_cards)) {
-				//block not still betting
-				//if (copyOfPlayers[i]->still_betting == true || players[i]->all_in == true) {
+			if (!poker_rank(copyOfPlayers[zero]->player_cards, copyOfPlayers[i]->player_cards)) {
+			
 				std::cout << "Winner: " << copyOfPlayers[i]->playerName << endl;
 				copyOfPlayers[i]->hands_won++;
 				copyOfPlayers[i]->player_chips += pot;
 				cout << "Pot size: " << pot << endl;
-				pot = 0;
-				//}
+				pot = zero;
 			}
 
 			else {
@@ -671,8 +608,7 @@ int SevenCardStud::after_round() {
 
 	}
 	std::cout << endl;
-	cout << "increment decrement winner loser success" << endl;
-
+	
 	//print out the player hands
 	for (size_t i = zero; i < copyOfPlayers.size(); i++) {
 
@@ -691,7 +627,7 @@ int SevenCardStud::after_round() {
 
 	//transfer the cards from the player hands back to the deck
 	for (size_t i = zero; i < copyOfPlayers.size(); i++) {
-		for (int j = copyOfPlayers[i]->player_cards.size() -1 ; j >= zero; j--) {
+		for (int j = copyOfPlayers[i]->player_cards.size() - one ; j >= zero; j--) {
 
 			size_t k = j;
 
@@ -719,10 +655,10 @@ int SevenCardStud::after_round() {
 	std::cout << "Round finished!" << endl;
 
 	//reset all betting fields
-	for (int i = 0; i < players.size(); i++) {
+	for (int i = zero; i < players.size(); i++) {
 		players[i]->still_betting = true;
 		players[i]->all_in = false;
-		players[i]->current_bet = 0;
+		players[i]->current_bet = zero;
 	}
 
 	string input;
@@ -730,15 +666,12 @@ int SevenCardStud::after_round() {
 	bool removalFinished = false;    //true if removing players step is complete
 	bool additionFinished = false;   //true if adding players step is complete
 
-									 //vector<string> stringsReceived;  //stores the user's response word-by-word
-
-
 	//check chip counts and reup or boot players
-	for (int i = 0; i < players.size(); i++) {
-		if (players[i]->player_chips <= 0) {
+	for (int i = zero; i < players.size(); i++) {
+		if (players[i]->player_chips <= zero) {
 			cout << "Player: " << players[i]->playerName << " does not have enough chips to continue playing. Would they like to add more chips? (yes or no)" << endl;
 			if (get_response()) {
-				players[i]->player_chips = 20;
+				players[i]->player_chips = twenty;
 				cout << "Player: " << players[i]->playerName << "'s chips generously re-upped to 20!" << endl;
 			}
 			else {
@@ -826,7 +759,7 @@ int SevenCardStud::after_round() {
 			for (size_t i = zero; i < stringsReceived.size(); i++) {
 
 				try {
-					//shared_ptr<Player> currPlayer = make_shared<Player>((char *)(stringsReceived[i].c_str()));
+					
 					Game::add_player(stringsReceived[i]);
 				}
 				catch (ErrorCode e) {

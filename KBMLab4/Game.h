@@ -32,7 +32,8 @@ enum numbersUsed {
 	thirteen,
 	twenty = 20,
 	twentythree = 23,
-	twentyfour = 24
+	twentyfour = 24,
+	negOne = -1
 };	
 
 

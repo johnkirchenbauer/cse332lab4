@@ -225,7 +225,7 @@ bool poker_rank(const Hand & h1, const Hand & h2) {
 
 	//tiebreaker for flush and no hand
 	if (first_hand_rank == flush_hand || first_hand_rank == no_hand) {
-		for (int i = hand_size - 1; i >= zero; --i) {
+		for (int i = hand_size - one; i >= zero; --i) {
 
 			int first_hand_high = first_hand_cards[i].rank;
 			int second_hand_high = second_hand_cards[i].rank;
@@ -621,13 +621,13 @@ vector<size_t> noHandDiscardIndices(vector<Card> hand) {
 	vector<size_t> result;
 
 	//remove the lowest 3 cards
-	result.push_back(0);
-	result.push_back(1);
-	result.push_back(2);
+	result.push_back(zero);
+	result.push_back(one);
+	result.push_back(two);
 
 	//if the last card is an ace, remove the the 2nd highest card
-	if (hand[hand.size() - 1].rank == Card::ace) {
-		result.push_back(3);
+	if (hand[hand.size() - one].rank == Card::ace) {
+		result.push_back(three);
 	}
 
 	return result;

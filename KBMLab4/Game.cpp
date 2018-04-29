@@ -22,11 +22,7 @@ using namespace std;
 shared_ptr<Game> Game::p = nullptr;
 
 /*Destructor*/
- Game::~Game() {
-	 /*for (vector<shared_ptr<Player>>::iterator it = players.begin(); it != players.end(); ++it) {
-		 delete (*it).get();  < ----------------------------------------------------------------------------dis here be rong
-	 }*/
-}
+Game::~Game() {}
 
  /*Returns a copy of the static pointer member variable*/
 shared_ptr<Game> Game::instance() {
@@ -91,7 +87,7 @@ void Game::add_player(const string & s) {
 	//compare player names to the input string.  If a match is found, throw an exception.
 	for (vector<shared_ptr<Player>>::iterator it = players.begin(); it != players.end(); ++it) {
 		string name = (*it)->playerName;
-		if (name.compare(s) == 0) {
+		if (name.compare(s) == zero) {
 			throw PlayerAlreadyPlaying;
 		}
 	}
@@ -125,7 +121,8 @@ shared_ptr<Player> Game::find_player(const string & s) {
 }
 
 void Game::emptyPlayers() {
-	for (vector<shared_ptr<Player>>::iterator it = players.begin(); it != players.end(); ++it) {
+	while ( players.begin() != players.end()) {
+		vector<shared_ptr<Player>>::iterator it = players.begin();
 		string name = (*it)->playerName;
 		string numOfWins = to_string((*it)->hands_won);
 		string numOfLosses = to_string((*it)->hands_lost);
@@ -144,9 +141,6 @@ void Game::emptyPlayers() {
 		players.erase(it);
 
 		std::cout << "Player has left the game: " << name << endl;
-
-
-
 
 	}
 }
