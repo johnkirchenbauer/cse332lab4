@@ -630,7 +630,7 @@ int FiveCardDraw::after_round() {
 				std::cout << "Winner: " << copyOfPlayers[i]->playerName << endl;
 				copyOfPlayers[i]->hands_won++;
 				copyOfPlayers[i]->player_chips += pot;
-				cout << "BootyLoot: " << pot << endl;
+				cout << "Pot size: " << pot << endl;
 				pot = 0;
 			}
 		}
@@ -644,8 +644,6 @@ int FiveCardDraw::after_round() {
 
 	//print out the player hands
 	for (size_t i = zero; i < copyOfPlayers.size(); i++) {
-		/*cout << "Copy of players[i]," << copyOfPlayers[i]->playerName << " still betting = " << copyOfPlayers[i]->still_betting << endl;
-		cout << "Copy of players[i]," << copyOfPlayers[i]->playerName << " all in = " << copyOfPlayers[i]->all_in << endl;*/
 		if ((copyOfPlayers[i]->still_betting == true) || (copyOfPlayers[i]->all_in == true)) {
 			std::cout << *copyOfPlayers[i] << endl;
 			std::cout << copyOfPlayers[i]->player_cards << endl;

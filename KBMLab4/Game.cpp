@@ -12,6 +12,7 @@
 #include "kbmlab4.h"
 #include "FiveCardDraw.h"
 #include "SevenCardStud.h"
+#include "TexasHoldEm.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -57,6 +58,11 @@ void Game::start_game(const string & s) {
 	else if (s.find("SevenCardStud") != string::npos) {
 		//make new FiveCardDraw, and store its address into the static pointer member variable
 		shared_ptr<Game> fcd = make_shared<SevenCardStud>();
+		p = fcd;
+	}
+	else if (s.find("TexasHoldEm") != string::npos) {
+		//make new FiveCardDraw, and store its address into the static pointer member variable
+		shared_ptr<Game> fcd = make_shared<TexasHoldEm>();
 		p = fcd;
 	}
 	else {

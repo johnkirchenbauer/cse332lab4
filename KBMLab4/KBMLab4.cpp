@@ -127,7 +127,7 @@ int main(int argc, char * argv[]) {
 set<string> GameTypes{
 	"FiveCardDraw",
 	"SevenCardStud",
-	"TexasHoldem",
+	"TexasHoldEm",
 };
 
 vector<string> gamePrompt() {
@@ -162,7 +162,7 @@ vector<string> gamePrompt() {
 					invalidResponse = true;
 				}
 			}
-			else if (respVector[zero] == "TexasHoldem") {
+			else if (respVector[zero] == "TexasHoldEm") {
 				if (respVector.size() > twentyfour) {
 					invalidResponse = true;
 				}

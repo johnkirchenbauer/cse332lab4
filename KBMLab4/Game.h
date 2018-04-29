@@ -31,6 +31,7 @@ enum numbersUsed {
 	twelve,
 	thirteen,
 	twenty = 20,
+	twentythree = 23,
 	twentyfour = 24
 };	
 
